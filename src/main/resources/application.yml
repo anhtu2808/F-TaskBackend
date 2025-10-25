@@ -27,3 +27,9 @@ springdoc:
   swagger-ui:
     path: /swagger
     persist-authorization: true
+
+jwt:
+  SIGNER_KEY: ${SIGNER_KEY}
+
+speedSMS:
+  token: ${SPSMS_TOKEN}

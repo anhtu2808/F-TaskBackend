@@ -13,6 +13,20 @@ public enum ErrorCode {
     UNAUTHENTICATED(HttpStatus.UNAUTHORIZED.value(), "Unauthenticated", HttpStatus.UNAUTHORIZED),
     // 403 Forbidden
     UNAUTHORIZED(HttpStatus.FORBIDDEN.value(), "You are not authorized to access", HttpStatus.FORBIDDEN),
+
+    //400 Bad Request
+    BadRequest(HttpStatus.BAD_REQUEST.value(), "Bad Request", HttpStatus.BAD_REQUEST),
+    DuplicatedEmail(HttpStatus.BAD_REQUEST.value(), "This email has been used before, try another please!", HttpStatus.BAD_REQUEST),
+    DuplicatedPhone(HttpStatus.BAD_REQUEST.value(), "This phone number has been used before, try another please!", HttpStatus.BAD_REQUEST),
+    DuplicatedUsername(HttpStatus.BAD_REQUEST.value(), "This username has been used before, try another please!", HttpStatus.BAD_REQUEST),
+    WrongPassword(HttpStatus.BAD_REQUEST.value(), "Provided password is wrong", HttpStatus.BAD_REQUEST),
+    OtpIsExpired(HttpStatus.BAD_REQUEST.value(), "The OTP is expired", HttpStatus.BAD_REQUEST),
+    OtpIsNotSuitable(HttpStatus.BAD_REQUEST.value(), "The OTP isn't suitable", HttpStatus.BAD_REQUEST),
+
+    //404 Not found
+    UserNotFoundByPhone(HttpStatus.NOT_FOUND.value(), "This user does not exist with this phone number", HttpStatus.NOT_FOUND),
+    OtpNotFoundByCode(HttpStatus.NOT_FOUND.value(), "Otp does not exist with this code", HttpStatus.NOT_FOUND),
+    RoleNotFoundByName(HttpStatus.NOT_FOUND.value(), "This role does not exist with this name", HttpStatus.NOT_FOUND),
     ;
 
     ErrorCode(int code, String message, HttpStatusCode statusCode) {
