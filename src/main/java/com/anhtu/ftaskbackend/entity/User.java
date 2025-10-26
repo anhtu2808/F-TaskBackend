@@ -1,6 +1,7 @@
 package com.anhtu.ftaskbackend.entity;
 
 import com.anhtu.ftaskbackend.common.AbstractAuditingEntity;
+import com.anhtu.ftaskbackend.enums.Gender;
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
@@ -24,6 +25,9 @@ public class User extends AbstractAuditingEntity {
     @Column(length = 100, unique = true)
     String username;
 
+    @Column(length = 12, unique = true)
+    String phone;
+
     @Column(length = 100, unique = true)
     String email;
 
@@ -36,10 +40,15 @@ public class User extends AbstractAuditingEntity {
     @ManyToOne
     @JoinColumn(name = "role_id", nullable = false)
     Role role;
+
+    @Enumerated(EnumType.STRING)
+    Gender gender;
+
+    @Column(length = 12, unique = true)
+    String idCard;
     String firstName;
     String lastName;
     String address;
-    String phone;
     @Column(name = "avatar_url", columnDefinition = "TEXT")
     String avatarUrl;
 

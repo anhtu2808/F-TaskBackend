@@ -23,7 +23,7 @@ import org.springframework.web.filter.CorsFilter;
 public class SecurityConfig {
 
     private static final String[] PUBLIC_POST = {
-            "/users/register",
+            "/auth/register",
             "/auth/login",
             "/auth/introspect",
             "/auth/logout",
