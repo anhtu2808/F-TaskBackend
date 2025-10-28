@@ -25,20 +25,20 @@ public class BookingPartner extends AbstractAuditingEntity {
     Long id;
 
     @ManyToOne
-    @JoinColumn(name = "booking_id", referencedColumnName = "id")
+    @JoinColumn(name = "booking_id", referencedColumnName = "id", nullable = false)
     Booking booking;
 
     @ManyToOne
-    @JoinColumn(name = "partner_id", referencedColumnName = "id")
+    @JoinColumn(name = "partner_id", referencedColumnName = "id", nullable = false)
     Partner partner;
 
-    @Column(nullable = false)
+    @Column(nullable = false, name = "partner_earnings")
     Double partnerEarnings;
 
     @Enumerated(EnumType.STRING)
     BookingPartnerStatus status;
 
-    @Column(columnDefinition = "TEXT")
+    @Column(columnDefinition = "TEXT", name = "cancel_reason")
     String cancelReason;
 
     @Column(name = "join_at", updatable = false)

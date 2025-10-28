@@ -22,11 +22,11 @@ public class Review extends AbstractAuditingEntity {
     Long id;
 
     @ManyToOne
-    @JoinColumn(name = "booking_id", referencedColumnName = "id")
+    @JoinColumn(name = "booking_id", referencedColumnName = "id", nullable = false)
     Booking booking;
 
     @ManyToOne
-    @JoinColumn(name = "customer_id", referencedColumnName = "id")
+    @JoinColumn(name = "customer_id", referencedColumnName = "id", nullable = false)
     Customer customer;
 
     @ManyToOne

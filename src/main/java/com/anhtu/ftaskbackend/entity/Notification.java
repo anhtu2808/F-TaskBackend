@@ -23,7 +23,7 @@ public class Notification extends AbstractAuditingEntity {
     Long id;
 
     @ManyToOne
-    @JoinColumn(name = "user_id", referencedColumnName = "id")
+    @JoinColumn(name = "user_id", referencedColumnName = "id", nullable = false)
     User user;
 
     @ManyToOne
@@ -36,10 +36,11 @@ public class Notification extends AbstractAuditingEntity {
     @Column(nullable = false)
     String title;
 
-    @Column(columnDefinition = "TEXT")
+    @Column(columnDefinition = "TEXT", nullable = false)
     String message;
 
     @Builder.Default
+    @Column(name = "is_read")
     Boolean isRead = false;
 
 }

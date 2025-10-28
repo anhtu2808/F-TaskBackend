@@ -1,10 +1,7 @@
 package com.anhtu.ftaskbackend.entity;
 
 import com.anhtu.ftaskbackend.common.AbstractAuditingEntity;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 import org.hibernate.annotations.SQLDelete;
@@ -25,11 +22,17 @@ public class Wallet extends AbstractAuditingEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     Long id;
 
+    @OneToOne
+    @JoinColumn(name = "partner_id", referencedColumnName = "id", nullable = false)
+    Partner partner;
+
     @Builder.Default
     Double balance = 0.0;
     @Builder.Default
+    @Column(name = "total_earned")
     Double totalEarned = 0.0;
     @Builder.Default
+    @Column(name = "total_withdrawn")
     Double totalWithdrawn = 0.0;
 
 }

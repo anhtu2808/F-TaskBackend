@@ -32,13 +32,15 @@ public class ServiceCatalog extends AbstractAuditingEntity {
     @Enumerated(EnumType.STRING)
     ServiceCategory category;
 
-    @Column
+    @Column(name = "image_url")
     String imageUrl;
 
     @Builder.Default
+    @Column(name = "platform_fee_percent")
     Double platformFeePercent = 20.0;
 
     @Builder.Default
+    @Column(name = "is_active")
     Boolean isActive = true;
 
 }

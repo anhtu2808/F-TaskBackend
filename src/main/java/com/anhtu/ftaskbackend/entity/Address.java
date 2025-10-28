@@ -26,7 +26,7 @@ public class Address extends AbstractAuditingEntity {
     @JoinColumn(name = "customer_id", referencedColumnName = "id", nullable = false)
     Customer customer;
 
-    @Column(length = 100)
+    @Column(length = 100, name = "address_line")
     String addressLine;
 
     @Column(nullable = false, length = 50)
@@ -35,7 +35,7 @@ public class Address extends AbstractAuditingEntity {
     @Column(nullable = false, length = 20)
     String city;
 
-    @Column
+    @Column(name = "postal_code")
     String postalCode;
 
     @Column

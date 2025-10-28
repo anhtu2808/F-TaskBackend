@@ -27,15 +27,18 @@ public class Partner extends AbstractAuditingEntity {
     User user;
 
     @Builder.Default
+    @Column(name = "average_rating")
     Double averageRating = 0.0;
 
     @Builder.Default
+    @Column(name = "total_jobs_completed")
     Integer totalJobsCompleted = 0;
 
     @Builder.Default
+    @Column(name = "is_available")
     Boolean isAvailable = true;
 
-    @Column(columnDefinition = "JSON")
+    @Column(columnDefinition = "JSON", name = "district_ids")
     String districtIdsJson;
 
     @OneToOne

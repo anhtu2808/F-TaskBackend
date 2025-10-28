@@ -22,21 +22,22 @@ public class ChatMessage extends AbstractAuditingEntity {
     Long id;
 
     @ManyToOne
-    @JoinColumn(name = "booking_id", referencedColumnName = "id")
+    @JoinColumn(name = "booking_id", referencedColumnName = "id", nullable = false)
     Booking booking;
 
     @ManyToOne
-    @JoinColumn(name = "sender_id", referencedColumnName = "id")
+    @JoinColumn(name = "sender_id", referencedColumnName = "id", nullable = false)
     User sender;
 
     @ManyToOne
-    @JoinColumn(name = "receiver_id", referencedColumnName = "id")
+    @JoinColumn(name = "receiver_id", referencedColumnName = "id", nullable = false)
     User receiver;
 
-    @Column(columnDefinition = "TEXT")
+    @Column(columnDefinition = "TEXT", name = "message_content", nullable = false)
     String messageContent;
 
     @Builder.Default
+    @Column(name = "is_read")
     Boolean isRead = false;
 
 }

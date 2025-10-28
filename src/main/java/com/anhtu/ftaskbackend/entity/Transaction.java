@@ -24,11 +24,11 @@ public class Transaction extends AbstractAuditingEntity {
     Long id;
 
     @ManyToOne
-    @JoinColumn(name = "wallet_id", referencedColumnName = "id")
+    @JoinColumn(name = "wallet_id", referencedColumnName = "id", nullable = false)
     Wallet wallet;
 
     @ManyToOne
-    @JoinColumn(name = "booking_partner_id", referencedColumnName = "id")
+    @JoinColumn(name = "booking_partner_id", referencedColumnName = "id", nullable = false)
     BookingPartner bookingPartner;
 
     @Enumerated(EnumType.STRING)
@@ -37,8 +37,9 @@ public class Transaction extends AbstractAuditingEntity {
     @Column(nullable = false)
     Double amount;
 
+    @Column(name = "balance_before")
     Double balanceBefore;
-
+    @Column(name = "balance_after")
     Double balanceAfter;
     @Column(columnDefinition = "TEXT")
     String description;

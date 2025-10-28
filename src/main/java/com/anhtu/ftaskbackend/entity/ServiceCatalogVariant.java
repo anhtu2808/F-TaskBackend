@@ -22,7 +22,7 @@ public class ServiceCatalogVariant extends AbstractAuditingEntity {
     Long id;
 
     @ManyToOne
-    @JoinColumn(name = "service_catalog_id", referencedColumnName = "id")
+    @JoinColumn(name = "service_catalog_id", referencedColumnName = "id", nullable = false)
     ServiceCatalog serviceCatalog;
 
     @Column(length = 100, nullable = false)
@@ -31,16 +31,17 @@ public class ServiceCatalogVariant extends AbstractAuditingEntity {
     @Column(columnDefinition = "TEXT")
     String description;
 
-    @Column(nullable = false)
+    @Column(nullable = false, name = "duration_hours")
     Integer durationHours;
 
-    @Column(nullable = false)
+    @Column(nullable = false, name = "price_per_variant")
     Double pricePerVariant;
 
     @Builder.Default
+    @Column(name = "is_multi_partner")
     Boolean isMultiPartner = false;
 
-    @Column(nullable = false)
+    @Column(name = "number_of_parteners")
     @Builder.Default
     Integer numberOfPartners = 1;
 

@@ -26,7 +26,7 @@ public class Payment extends AbstractAuditingEntity {
     Long id;
 
     @ManyToOne
-    @JoinColumn(name = "booking_id", referencedColumnName = "id")
+    @JoinColumn(name = "booking_id", referencedColumnName = "id", nullable = false)
     Booking booking;
 
     @Column(nullable = false)
