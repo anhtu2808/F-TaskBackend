@@ -9,10 +9,8 @@ import com.anhtu.ftaskbackend.service.AuthService;
 import lombok.AccessLevel;
 import lombok.experimental.FieldDefaults;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/auth")
@@ -23,6 +21,7 @@ public class AuthController {
     AuthService authService;
 
     @PostMapping("/register")
+    @ResponseStatus(HttpStatus.CREATED)
     public ApiResponse<Void> register(@RequestBody RegisterRequest registerRequest) {
         authService.register(registerRequest);
         return ApiResponse.<Void>builder()
@@ -31,6 +30,7 @@ public class AuthController {
     }
 
     @PostMapping("/login")
+    @ResponseStatus(HttpStatus.OK)
     public ApiResponse<LoginResponse> login(@RequestBody LoginRequest loginRequest) {
         return ApiResponse.<LoginResponse>builder()
                 .message("Login success")

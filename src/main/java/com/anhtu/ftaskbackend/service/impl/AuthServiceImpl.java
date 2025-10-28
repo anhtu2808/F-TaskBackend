@@ -62,10 +62,10 @@ public class AuthServiceImpl implements AuthService {
         }
         User user = userMapper.registerRequestToUser(request);
         user.setPassword(passwordEncoder.encode(request.getPassword()));
-        switch (request.getType()){
-            case CUSTOMER -> user.setRole(roleRepository.findByName("CUSTOMER")
+        switch (request.getRoleName()){
+            case "CUSTOMER" -> user.setRole(roleRepository.findByName("CUSTOMER")
                     .orElseThrow(() -> new AppException(ErrorCode.RoleNotFoundByName)));
-            case PARTNER -> user.setRole(roleRepository.findByName("PARTNER")
+            case "PARTNER" -> user.setRole(roleRepository.findByName("PARTNER")
                     .orElseThrow(() -> new AppException(ErrorCode.RoleNotFoundByName)));
         }
         user.setIsActive(false);

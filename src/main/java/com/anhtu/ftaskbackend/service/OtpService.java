@@ -6,6 +6,7 @@ import com.anhtu.ftaskbackend.enums.OtpType;
 
 public interface OtpService {
 
+
     void sendOtp(User user, OtpType type);
     User verifyOtp(VerifyOtpRequest request);
 }

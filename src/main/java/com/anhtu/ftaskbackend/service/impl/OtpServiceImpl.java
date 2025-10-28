@@ -39,6 +39,8 @@ public class OtpServiceImpl implements OtpService {
     @Value("${speedSMS.token}")
     String speedSMSToken;
 
+
+
     public void sendOtp(User user, OtpType type) {
         try {
             String otp = String.format("%06d", new Random().nextInt(999999));
