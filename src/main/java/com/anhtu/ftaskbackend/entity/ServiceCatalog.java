@@ -2,7 +2,6 @@ package com.anhtu.ftaskbackend.entity;
 
 import com.anhtu.ftaskbackend.common.AbstractAuditingEntity;
 import com.anhtu.ftaskbackend.enums.Gender;
-import com.anhtu.ftaskbackend.enums.ServiceCategory;
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
@@ -28,9 +27,6 @@ public class ServiceCatalog extends AbstractAuditingEntity {
 
     @Column(columnDefinition = "TEXT")
     String description;
-
-    @Enumerated(EnumType.STRING)
-    ServiceCategory category;
 
     @Column(name = "image_url")
     String imageUrl;
