@@ -46,8 +46,7 @@ public class User extends AbstractAuditingEntity {
 
     @Column(length = 12, unique = true)
     String idCard;
-    String firstName;
-    String lastName;
+    String fullName;
     String address;
     @Column(name = "avatar_url", columnDefinition = "TEXT")
     String avatarUrl;
