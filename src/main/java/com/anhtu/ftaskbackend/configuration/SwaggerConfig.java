@@ -11,13 +11,16 @@ import org.springframework.context.annotation.Configuration;
 import java.util.List;
 
 @Configuration
-
 public class SwaggerConfig {
 
     @Bean
     public OpenAPI customOpenAPI() {
         final String securitySchemeName = "bearerAuth";
         return new OpenAPI()
+                .servers(List.of(
+                        new Server().url("https:ftask.anhtudev.works/api").description("Production"),
+                        new Server().url("http://localhost:8080/api").description("Local Development Server")
+                ))
                 .info(new Info()
                         .title("API Documentation")
                         .description("API documentation with JWT Authentication")
