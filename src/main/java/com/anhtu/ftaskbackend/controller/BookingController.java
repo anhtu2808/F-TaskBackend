@@ -3,13 +3,17 @@ package com.anhtu.ftaskbackend.controller;
 import com.anhtu.ftaskbackend.common.ApiResponse;
 import com.anhtu.ftaskbackend.dto.request.booking.CreateBookingRequest;
 import com.anhtu.ftaskbackend.dto.response.booking.BookingResponse;
+import com.anhtu.ftaskbackend.enums.BookingStatus;
 import com.anhtu.ftaskbackend.service.BookingService;
 import lombok.AccessLevel;
 import lombok.experimental.FieldDefaults;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
+
+import java.time.LocalDateTime;
 
 @RestController
 @RequestMapping("/bookings")
@@ -32,11 +36,14 @@ public class BookingController {
     @GetMapping
     @ResponseStatus(HttpStatus.OK)
     public ApiResponse<Page<BookingResponse>> createBooking(@RequestParam(defaultValue = "1") int page,
-                                                            @RequestParam(defaultValue = "5") int size){
+                                                            @RequestParam(defaultValue = "3") int size,
+                                                            @RequestParam BookingStatus status,
+                                                            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime fromDate,
+                                                            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime toDate){
         return ApiResponse.<Page<BookingResponse>>builder()
                 .code(200)
                 .message("Get booking successfully")
-                .result(bookingService.getAllBookings(page - 1, size))
+                .result(bookingService.getAllBookings(page - 1, size, status, fromDate, toDate))
                 .build();
     }
 

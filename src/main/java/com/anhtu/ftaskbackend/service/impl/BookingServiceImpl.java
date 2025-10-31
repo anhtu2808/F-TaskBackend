@@ -6,6 +6,7 @@ import com.anhtu.ftaskbackend.entity.Address;
 import com.anhtu.ftaskbackend.entity.Booking;
 import com.anhtu.ftaskbackend.entity.Customer;
 import com.anhtu.ftaskbackend.entity.ServiceCatalogVariant;
+import com.anhtu.ftaskbackend.enums.BookingStatus;
 import com.anhtu.ftaskbackend.exception.AppException;
 import com.anhtu.ftaskbackend.exception.ErrorCode;
 import com.anhtu.ftaskbackend.mapper.BookingMapper;
@@ -50,13 +51,15 @@ public class BookingServiceImpl implements BookingService {
                 .orElseThrow(() -> new AppException(ErrorCode.ServiceVariantNotFound));
         if (request.getStartAt().isBefore(LocalDateTime.now()))
             throw new AppException(ErrorCode.BookingStartAtInvalid);
+        double platformFeePercent = variant.getServiceCatalog().getPlatformFeePercent() / 100;
+        double variantPrice = variant.getPricePerVariant();
         Booking booking = Booking.builder()
                 .customer(customer)
                 .address(address)
                 .variant(variant)
                 .totalPrice(variant.getPricePerVariant())
-                .requiredPartners(variant.getNumberOfPartners())
-                .platformFee(variant.getServiceCatalog().getPlatformFeePercent())
+                .requiredPartners(variant.getNumberOfPartners()) // customer yeu cau so luong nguoi hay lay so luong nguoi trong variant
+                .platformFee(variantPrice * platformFeePercent)
                 .startAt(request.getStartAt())
                 .completedAt(request.getStartAt().plusHours(variant.getDurationHours()))
                 .customerNote(request.getCustomerNote())
@@ -66,9 +69,9 @@ public class BookingServiceImpl implements BookingService {
     }
 
     @Override
-    public Page<BookingResponse> getAllBookings(int page, int size) {
+    public Page<BookingResponse> getAllBookings(int page, int size, BookingStatus status, LocalDateTime from, LocalDateTime to) {
         Pageable pageable = PageRequest.of(page, size);
-        Page<Booking> bookings = bookingRepository.findAll(pageable);
+        Page<Booking> bookings = bookingRepository.findByStatusAndStartAtBetween(status, from, to, pageable);
         return bookings.map(bookingMapper::toBookingResponse);
     }
 }
