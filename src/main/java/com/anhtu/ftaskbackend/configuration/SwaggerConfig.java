@@ -16,13 +16,18 @@ public class SwaggerConfig {
     @Bean
     public OpenAPI customOpenAPI() {
         final String securitySchemeName = "bearerAuth";
+
         return new OpenAPI()
                 .servers(List.of(
-                        new Server().url("https:ftask.anhtudev.works/api").description("Production"),
-                        new Server().url("http://localhost:8080/api").description("Local Development Server")
+                        new Server()
+                                .url("https://ftask.anhtudev.works")
+                                .description("Production"),
+                        new Server()
+                                .url("http://localhost:8080")
+                                .description("Local Development Server")
                 ))
                 .info(new Info()
-                        .title("API Documentation")
+                        .title("FTask API Documentation")
                         .description("API documentation with JWT Authentication")
                         .version("v1.0"))
                 .addSecurityItem(new SecurityRequirement().addList(securitySchemeName))
