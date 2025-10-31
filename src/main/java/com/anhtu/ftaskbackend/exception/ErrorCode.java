@@ -31,6 +31,7 @@ public enum ErrorCode {
     SERVICE_CATALOG_NOT_FOUND(HttpStatus.NOT_FOUND.value(), "Service Catalog not found", HttpStatus.NOT_FOUND),
     ServiceVariantNotFound(HttpStatus.NOT_FOUND.value(), "Service Variant not found", HttpStatus.NOT_FOUND),
     AddressNotFound(HttpStatus.NOT_FOUND.value(), "Address not found", HttpStatus.NOT_FOUND),
+    CustomerNotFoundByUsername(HttpStatus.NOT_FOUND.value(), "Customer does not exist with this username", HttpStatus.NOT_FOUND),
     ;
 
     ErrorCode(int code, String message, HttpStatusCode statusCode) {

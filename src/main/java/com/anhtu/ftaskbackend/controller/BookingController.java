@@ -7,6 +7,7 @@ import com.anhtu.ftaskbackend.service.BookingService;
 import lombok.AccessLevel;
 import lombok.experimental.FieldDefaults;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
@@ -25,6 +26,16 @@ public class BookingController {
                 .code(201)
                 .message("Create booking successfully")
                 .result(bookingService.createBooking(request))
+                .build();
+    }
+
+    @GetMapping
+    @ResponseStatus(HttpStatus.OK)
+    public ApiResponse<Page<BookingResponse>> createBooking(@RequestParam int page, @RequestParam int size){
+        return ApiResponse.<Page<BookingResponse>>builder()
+                .code(200)
+                .message("Get booking successfully")
+                .result(bookingService.getAllBookings(page, size))
                 .build();
     }
 

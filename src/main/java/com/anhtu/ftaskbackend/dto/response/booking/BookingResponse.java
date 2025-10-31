@@ -1,5 +1,8 @@
 package com.anhtu.ftaskbackend.dto.response.booking;
 
+import com.anhtu.ftaskbackend.dto.response.Customer.AddressResponse;
+import com.anhtu.ftaskbackend.dto.response.Customer.CustomerResponse;
+import com.anhtu.ftaskbackend.dto.response.ServiceVariant.ServiceVariantResponse;
 import com.anhtu.ftaskbackend.entity.Address;
 import com.anhtu.ftaskbackend.entity.Customer;
 import com.anhtu.ftaskbackend.entity.ServiceCatalogVariant;
@@ -19,14 +22,14 @@ import java.time.LocalDateTime;
 public class BookingResponse {
 
     Long id;
-//    Customer customer;
-//    ServiceCatalogVariant variant;
-//    Address address;
-
     LocalDateTime startAt;
     Double totalPrice;
     String customerNote;
     Integer requiredPartners;
     BookingStatus status;
+    LocalDateTime completedAt;
+    CustomerResponse customer;
+    ServiceVariantResponse variant;
+    AddressResponse address;
 
 }
