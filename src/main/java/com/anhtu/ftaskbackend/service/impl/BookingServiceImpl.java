@@ -74,4 +74,11 @@ public class BookingServiceImpl implements BookingService {
         Page<Booking> bookings = bookingRepository.findByStatusAndStartAtBetween(status, from, to, pageable);
         return bookings.map(bookingMapper::toBookingResponse);
     }
+
+    @Override
+    public BookingResponse getBooking(Long id) {
+        Booking booking = bookingRepository.findById(id)
+                .orElseThrow(() -> new AppException(ErrorCode.BookingNotFound));
+        return bookingMapper.toBookingResponse(booking);
+    }
 }

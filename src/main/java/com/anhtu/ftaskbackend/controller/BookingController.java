@@ -42,8 +42,18 @@ public class BookingController {
                                                             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime toDate){
         return ApiResponse.<Page<BookingResponse>>builder()
                 .code(200)
-                .message("Get booking successfully")
+                .message("Get bookings successfully")
                 .result(bookingService.getAllBookings(page - 1, size, status, fromDate, toDate))
+                .build();
+    }
+
+    @GetMapping("/{id}")
+    @ResponseStatus(HttpStatus.OK)
+    public ApiResponse<BookingResponse> getBooking(@PathVariable Long id){
+        return ApiResponse.<BookingResponse>builder()
+                .code(200)
+                .message("Get booking by id successfully")
+                .result(bookingService.getBooking(id))
                 .build();
     }
 
