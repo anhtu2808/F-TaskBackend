@@ -27,6 +27,7 @@ public enum ErrorCode {
     UserNotFoundByPhone(HttpStatus.NOT_FOUND.value(), "This user does not exist with this phone number", HttpStatus.NOT_FOUND),
     OtpNotFoundByCode(HttpStatus.NOT_FOUND.value(), "Otp does not exist with this code", HttpStatus.NOT_FOUND),
     RoleNotFoundByName(HttpStatus.NOT_FOUND.value(), "This role does not exist with this name", HttpStatus.NOT_FOUND),
+    SERVICE_CATALOG_NOT_FOUND(HttpStatus.NOT_FOUND.value(), "Service Catalog not found", HttpStatus.NOT_FOUND)
     ;
 
     ErrorCode(int code, String message, HttpStatusCode statusCode) {

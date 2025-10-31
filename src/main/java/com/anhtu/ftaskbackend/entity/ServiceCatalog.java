@@ -23,7 +23,7 @@ public class ServiceCatalog extends AbstractAuditingEntity {
     Long id;
 
     @Column(nullable = false, length = 50)
-    String serviceName;
+    String name;
 
     @Column(columnDefinition = "TEXT")
     String description;
