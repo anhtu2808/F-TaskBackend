@@ -29,12 +29,14 @@ public class SecurityConfig {
             "/auth/logout",
             "/auth/refresh",
             "/health-check",
+            "/service-catalogs",
             "/login/**",
     };
 
     private static final String[] PUBLIC_GET = {
             "/swagger-ui.html",
             "/health-check",
+            "/service-catalogs",
             "/swagger-ui/index.html",
             "/api-docs/**",
             "/swagger-ui/**",
