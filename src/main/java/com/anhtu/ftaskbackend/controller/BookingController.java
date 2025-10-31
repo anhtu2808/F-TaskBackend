@@ -31,11 +31,12 @@ public class BookingController {
 
     @GetMapping
     @ResponseStatus(HttpStatus.OK)
-    public ApiResponse<Page<BookingResponse>> createBooking(@RequestParam int page, @RequestParam int size){
+    public ApiResponse<Page<BookingResponse>> createBooking(@RequestParam(defaultValue = "1") int page,
+                                                            @RequestParam(defaultValue = "5") int size){
         return ApiResponse.<Page<BookingResponse>>builder()
                 .code(200)
                 .message("Get booking successfully")
-                .result(bookingService.getAllBookings(page, size))
+                .result(bookingService.getAllBookings(page - 1, size))
                 .build();
     }
 
