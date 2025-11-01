@@ -3,6 +3,7 @@ package com.anhtu.ftaskbackend.controller;
 import com.anhtu.ftaskbackend.common.ApiResponse;
 import com.anhtu.ftaskbackend.dto.request.servicevariant.CreateServiceVariantRequest;
 import com.anhtu.ftaskbackend.dto.request.servicevariant.FilterServiceVariant;
+import com.anhtu.ftaskbackend.dto.request.servicevariant.UpdateServiceVariantRequest;
 import com.anhtu.ftaskbackend.dto.response.ServiceVariant.ServiceVariantResponse;
 import com.anhtu.ftaskbackend.entity.ServiceCatalogVariant;
 import com.anhtu.ftaskbackend.service.ServiceVariantService;
@@ -43,5 +44,36 @@ public class ServiceCatalogVariantController {
                 .result(serviceVariantService.findAllServiceVariants(params))
                 .build();
     }
+
+    @GetMapping("/{id}")
+    @ResponseStatus(HttpStatus.OK)
+    public ApiResponse<ServiceVariantResponse> getServiceVariantById(@PathVariable Long id) {
+        return ApiResponse.<ServiceVariantResponse>builder()
+                .code(200)
+                .message("Get service catalog variant by id successfully")
+                .result(serviceVariantService.findServiceVariantById(id))
+                .build();
+    }
+
+    @PutMapping("/{id}")
+    @ResponseStatus(HttpStatus.FOUND)
+    public ApiResponse<ServiceVariantResponse> updateServiceVariant(@PathVariable Long id, @RequestBody UpdateServiceVariantRequest request) {
+        return ApiResponse.<ServiceVariantResponse>builder()
+                .code(200)
+                .message("Update service catalog variant successfully")
+                .result(serviceVariantService.updateServiceVariant(id, request))
+                .build();
+    }
+
+    @DeleteMapping("/{id}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public ApiResponse<Void> deleteServiceVariant(@PathVariable Long id) {
+        serviceVariantService.deleteServiceVariant(id);
+        return ApiResponse.<Void>builder()
+                .code(204)
+                .message("Delete service catalog variant successfully")
+                .build();
+    }
+
 
 }
