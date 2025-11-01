@@ -1,13 +1,12 @@
 package com.anhtu.ftaskbackend.service.impl;
 
 import com.anhtu.ftaskbackend.dto.request.booking.CreateBookingRequest;
-import com.anhtu.ftaskbackend.dto.request.booking.FilterBookingParams;
+import com.anhtu.ftaskbackend.dto.request.booking.FilterBooking;
 import com.anhtu.ftaskbackend.dto.response.booking.BookingResponse;
 import com.anhtu.ftaskbackend.entity.Address;
 import com.anhtu.ftaskbackend.entity.Booking;
 import com.anhtu.ftaskbackend.entity.Customer;
 import com.anhtu.ftaskbackend.entity.ServiceCatalogVariant;
-import com.anhtu.ftaskbackend.enums.BookingStatus;
 import com.anhtu.ftaskbackend.exception.AppException;
 import com.anhtu.ftaskbackend.exception.ErrorCode;
 import com.anhtu.ftaskbackend.helper.JWTHelper;
@@ -23,7 +22,6 @@ import lombok.experimental.FieldDefaults;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -72,21 +70,8 @@ public class BookingServiceImpl implements BookingService {
     }
 
     @Override
-    public Page<BookingResponse> getAllBookings(FilterBookingParams params) {
-        LocalDateTime from = params.getFromDate() != null
-                ? params.getFromDate().toLocalDateTime()
-                : null;
-        LocalDateTime to = params.getToDate() != null
-                ? params.getToDate().toLocalDateTime()
-                : null;
-        var spec = BookingSpecification.filter(
-                params.getStatus(),
-                from,
-                to,
-                params.getMinPrice(),
-                params.getMaxPrice(),
-                params.getAddress()
-        );
+    public Page<BookingResponse> getAllBookings(FilterBooking params) {
+        var spec = BookingSpecification.filter(params);
         var pageable = PageRequest.of(params.getPage() - 1, params.getSize());
         return bookingRepository.findAll(spec, pageable)
                 .map(bookingMapper::toBookingResponse);

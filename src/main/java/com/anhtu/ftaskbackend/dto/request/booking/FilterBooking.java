@@ -4,9 +4,7 @@ import com.anhtu.ftaskbackend.enums.BookingStatus;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 import org.springframework.format.annotation.DateTimeFormat;
-import org.springframework.web.bind.annotation.RequestParam;
 
-import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
 
 @Getter
@@ -15,7 +13,7 @@ import java.time.OffsetDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class FilterBookingParams {
+public class FilterBooking {
 
     @Builder.Default
     int page = 1;

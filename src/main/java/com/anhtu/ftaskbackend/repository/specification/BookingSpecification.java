@@ -1,5 +1,6 @@
 package com.anhtu.ftaskbackend.repository.specification;
 
+import com.anhtu.ftaskbackend.dto.request.booking.FilterBooking;
 import com.anhtu.ftaskbackend.entity.Booking;
 import com.anhtu.ftaskbackend.enums.BookingStatus;
 import jakarta.persistence.criteria.Expression;
@@ -14,31 +15,30 @@ import java.util.List;
 @Slf4j
 public class BookingSpecification {
 
-    public static Specification<Booking> filter(
-            BookingStatus status,
-            LocalDateTime fromDate,
-            LocalDateTime toDate,
-            Double minPrice,
-            Double maxPrice,
-            String address
-    ) {
+    public static Specification<Booking> filter(FilterBooking params) {
         return (root, query, cb) -> {
+            LocalDateTime from = params.getFromDate() != null
+                    ? params.getFromDate().toLocalDateTime()
+                    : null;
+            LocalDateTime to = params.getToDate() != null
+                    ? params.getToDate().toLocalDateTime()
+                    : null;
             List<Predicate> predicates = new ArrayList<>();
 
-            if (status != null)
-                predicates.add(cb.equal(root.get("status"), status));
+            if (params.getStatus() != null)
+                predicates.add(cb.equal(root.get("status"), params.getStatus()));
 
-            if (fromDate != null)
-                predicates.add(cb.greaterThanOrEqualTo(root.get("startAt"), fromDate));
-            if (toDate != null)
-                predicates.add(cb.lessThanOrEqualTo(root.get("startAt"), toDate));
+            if (from != null)
+                predicates.add(cb.greaterThanOrEqualTo(root.get("startAt"), from));
+            if (to != null)
+                predicates.add(cb.lessThanOrEqualTo(root.get("startAt"), to));
 
-            if (minPrice != null)
-                predicates.add(cb.greaterThanOrEqualTo(root.get("totalPrice"), minPrice));
-            if (maxPrice != null)
-                predicates.add(cb.lessThanOrEqualTo(root.get("totalPrice"), maxPrice));
+            if (params.getMinPrice() != null)
+                predicates.add(cb.greaterThanOrEqualTo(root.get("totalPrice"), params.getMinPrice()));
+            if (params.getMaxPrice() != null)
+                predicates.add(cb.lessThanOrEqualTo(root.get("totalPrice"), params.getMaxPrice()));
 
-            if (address != null && !address.isBlank()) {
+            if (params.getAddress() != null && !params.getAddress().isBlank()) {
                 var joinAddress = root.join("address");
                 Expression<String> districtAddress = cb.concat(
                         cb.concat(cb.lower(joinAddress.get("addressLine")), " "),
@@ -49,7 +49,7 @@ public class BookingSpecification {
                         cb.lower(joinAddress.get("city"))
                 );
                 predicates.add(cb.like(cb.lower(fullAddress),
-                        "%" + address.toLowerCase() + "%"));
+                        "%" + params.getAddress().toLowerCase() + "%"));
             }
             return cb.and(predicates.toArray(new Predicate[0]));
         };

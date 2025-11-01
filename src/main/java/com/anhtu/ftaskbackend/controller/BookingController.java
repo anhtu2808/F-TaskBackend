@@ -2,19 +2,15 @@ package com.anhtu.ftaskbackend.controller;
 
 import com.anhtu.ftaskbackend.common.ApiResponse;
 import com.anhtu.ftaskbackend.dto.request.booking.CreateBookingRequest;
-import com.anhtu.ftaskbackend.dto.request.booking.FilterBookingParams;
+import com.anhtu.ftaskbackend.dto.request.booking.FilterBooking;
 import com.anhtu.ftaskbackend.dto.response.booking.BookingResponse;
-import com.anhtu.ftaskbackend.enums.BookingStatus;
 import com.anhtu.ftaskbackend.service.BookingService;
 import lombok.AccessLevel;
 import lombok.experimental.FieldDefaults;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
-import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
-
-import java.time.LocalDateTime;
 
 @RestController
 @RequestMapping("/bookings")
@@ -36,7 +32,7 @@ public class BookingController {
 
     @GetMapping
     @ResponseStatus(HttpStatus.OK)
-    public ApiResponse<Page<BookingResponse>> createBooking(@ModelAttribute FilterBookingParams params){
+    public ApiResponse<Page<BookingResponse>> createBooking(@ModelAttribute FilterBooking params){
         return ApiResponse.<Page<BookingResponse>>builder()
                 .code(200)
                 .message("Get bookings successfully")
