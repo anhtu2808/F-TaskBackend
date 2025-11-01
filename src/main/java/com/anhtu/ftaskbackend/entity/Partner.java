@@ -42,7 +42,7 @@ public class Partner extends AbstractAuditingEntity {
     String districtIdsJson;
 
     @OneToOne
-    @JoinColumn(name = "wallet_id", nullable = false)
+    @JoinColumn(name = "wallet_id", referencedColumnName = "id", nullable = false)
     Wallet wallet;
 
 }

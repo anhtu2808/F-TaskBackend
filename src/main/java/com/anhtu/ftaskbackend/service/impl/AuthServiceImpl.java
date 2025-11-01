@@ -62,10 +62,10 @@ public class AuthServiceImpl implements AuthService {
         }
         User user = userMapper.registerRequestToUser(request);
         user.setPassword(passwordEncoder.encode(request.getPassword()));
-        switch (request.getType()){
-            case CUSTOMER -> user.setRole(roleRepository.findByName("CUSTOMER")
+        switch (request.getRole()){
+            case "CUSTOMER" -> user.setRole(roleRepository.findByName("CUSTOMER")
                     .orElseThrow(() -> new AppException(ErrorCode.RoleNotFoundByName)));
-            case PARTNER -> user.setRole(roleRepository.findByName("PARTNER")
+            case "PARTNER" -> user.setRole(roleRepository.findByName("PARTNER")
                     .orElseThrow(() -> new AppException(ErrorCode.RoleNotFoundByName)));
         }
         user.setIsActive(false);
@@ -112,6 +112,7 @@ public class AuthServiceImpl implements AuthService {
                     .issuer("ftask")
                     .issueTime(new Date())
                     .expirationTime(Date.from(Instant.now().plusSeconds(900)))
+                    .claim("userId", user.getId())
                     .claim("role", user.getRole().getName())
                     .claim("permissions", scopes)
                     .build();

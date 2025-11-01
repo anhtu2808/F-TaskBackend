@@ -12,13 +12,12 @@ import lombok.experimental.FieldDefaults;
 @AllArgsConstructor
 public class RegisterRequest {
 
-    String firstName;
-    String lastName;
+    String fullName;
     String idCard;
     String phone;
     String email;
     String referralCode;
     String password;
-    AccountType type;
+    String role;
 
 }

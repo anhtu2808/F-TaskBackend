@@ -23,7 +23,7 @@ public class Wallet extends AbstractAuditingEntity {
     Long id;
 
     @OneToOne
-    @JoinColumn(name = "partner_id", referencedColumnName = "id", nullable = false)
+    @JoinColumn(name = "partner_id", referencedColumnName = "id")
     Partner partner;
 
     @Builder.Default

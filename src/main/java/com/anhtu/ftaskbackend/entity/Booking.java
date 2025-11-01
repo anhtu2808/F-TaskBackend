@@ -9,6 +9,8 @@ import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.SQLRestriction;
 
 import java.time.LocalDateTime;
+import java.util.HashSet;
+import java.util.Set;
 
 @Getter
 @Setter
@@ -59,4 +61,7 @@ public class Booking extends AbstractAuditingEntity {
 
     @Column(nullable = false)
     LocalDateTime completedAt;
+
+    @OneToMany(mappedBy = "booking", cascade = CascadeType.REMOVE, fetch = FetchType.EAGER)
+    Set<BookingPartner> partners = new HashSet<>();
 }
