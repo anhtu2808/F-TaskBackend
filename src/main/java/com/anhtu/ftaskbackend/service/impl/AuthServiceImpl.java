@@ -112,6 +112,7 @@ public class AuthServiceImpl implements AuthService {
                     .issuer("ftask")
                     .issueTime(new Date())
                     .expirationTime(Date.from(Instant.now().plusSeconds(900)))
+                    .claim("userId", user.getId())
                     .claim("role", user.getRole().getName())
                     .claim("permissions", scopes)
                     .build();
