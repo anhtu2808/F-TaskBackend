@@ -2,12 +2,15 @@ package com.anhtu.ftaskbackend.controller;
 
 import com.anhtu.ftaskbackend.common.ApiResponse;
 import com.anhtu.ftaskbackend.dto.request.servicevariant.CreateServiceVariantRequest;
+import com.anhtu.ftaskbackend.dto.request.servicevariant.FilterServiceVariant;
 import com.anhtu.ftaskbackend.dto.response.ServiceVariant.ServiceVariantResponse;
 import com.anhtu.ftaskbackend.entity.ServiceCatalogVariant;
 import com.anhtu.ftaskbackend.service.ServiceVariantService;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
+import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
@@ -28,6 +31,16 @@ public class ServiceCatalogVariantController {
                 .code(201)
                 .message("Create service catalog variant successfully")
                 .result(serviceVariantService.createServiceVariant(request))
+                .build();
+    }
+
+    @GetMapping
+    @ResponseStatus(HttpStatus.OK)
+    public ApiResponse<Page<ServiceVariantResponse>> getAllServiceVariant(@ParameterObject FilterServiceVariant params) {
+        return ApiResponse.<Page<ServiceVariantResponse>>builder()
+                .code(200)
+                .message("Get all service catalog variant successfully")
+                .result(serviceVariantService.findAllServiceVariants(params))
                 .build();
     }
 
