@@ -21,11 +21,12 @@ public class FilterBookingParams {
     int page = 1;
     @Builder.Default
     int size = 3;
-    @Builder.Default
-    BookingStatus status = BookingStatus.PENDING;
+    BookingStatus status;
     @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
     OffsetDateTime fromDate;
     @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
     OffsetDateTime toDate;
-
+    Double minPrice;
+    Double maxPrice;
+    String address;
 }

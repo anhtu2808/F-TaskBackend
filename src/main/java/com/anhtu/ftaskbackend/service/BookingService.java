@@ -12,7 +12,7 @@ import java.time.LocalDateTime;
 public interface BookingService {
 
     BookingResponse createBooking(CreateBookingRequest createBookingRequest);
-    Page<BookingResponse> getAllBookings(FilterBookingParams filters);
+    Page<BookingResponse> getAllBookings(FilterBookingParams params);
     BookingResponse getBookingById(Long id);
 
 }

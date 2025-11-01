@@ -16,6 +16,7 @@ import com.anhtu.ftaskbackend.repository.AddressRepository;
 import com.anhtu.ftaskbackend.repository.BookingRepository;
 import com.anhtu.ftaskbackend.repository.CustomerRepository;
 import com.anhtu.ftaskbackend.repository.ServiceCatalogVariantRepository;
+import com.anhtu.ftaskbackend.repository.specification.BookingSpecification;
 import com.anhtu.ftaskbackend.service.BookingService;
 import lombok.AccessLevel;
 import lombok.experimental.FieldDefaults;
@@ -71,16 +72,24 @@ public class BookingServiceImpl implements BookingService {
     }
 
     @Override
-    public Page<BookingResponse> getAllBookings(FilterBookingParams filters) {
-        Pageable pageable = PageRequest.of(filters.getPage() - 1, filters.getSize());
-        Page<Booking> bookings = bookingRepository
-                .findByStatusAndStartAtBetween(
-                        filters.getStatus(),
-                        filters.getFromDate().toLocalDateTime(),
-                        filters.getToDate().toLocalDateTime(),
-                        pageable
-                );
-        return bookings.map(bookingMapper::toBookingResponse);
+    public Page<BookingResponse> getAllBookings(FilterBookingParams params) {
+        LocalDateTime from = params.getFromDate() != null
+                ? params.getFromDate().toLocalDateTime()
+                : null;
+        LocalDateTime to = params.getToDate() != null
+                ? params.getToDate().toLocalDateTime()
+                : null;
+        var spec = BookingSpecification.filter(
+                params.getStatus(),
+                from,
+                to,
+                params.getMinPrice(),
+                params.getMaxPrice(),
+                params.getAddress()
+        );
+        var pageable = PageRequest.of(params.getPage() - 1, params.getSize());
+        return bookingRepository.findAll(spec, pageable)
+                .map(bookingMapper::toBookingResponse);
     }
 
     @Override
