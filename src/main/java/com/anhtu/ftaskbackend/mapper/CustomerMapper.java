@@ -7,7 +7,7 @@ import org.mapstruct.Mapping;
 
 @Mapper(componentModel = "spring", uses = {UserMapper.class})
 public interface CustomerMapper {
-    
+
     CustomerResponse toCustomerResponse(Customer customer);
 
 }

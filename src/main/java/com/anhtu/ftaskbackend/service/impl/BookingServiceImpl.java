@@ -1,6 +1,7 @@
 package com.anhtu.ftaskbackend.service.impl;
 
 import com.anhtu.ftaskbackend.dto.request.booking.CreateBookingRequest;
+import com.anhtu.ftaskbackend.dto.request.booking.FilterBookingParams;
 import com.anhtu.ftaskbackend.dto.response.booking.BookingResponse;
 import com.anhtu.ftaskbackend.entity.Address;
 import com.anhtu.ftaskbackend.entity.Booking;
@@ -70,9 +71,15 @@ public class BookingServiceImpl implements BookingService {
     }
 
     @Override
-    public Page<BookingResponse> getAllBookings(int page, int size, BookingStatus status, LocalDateTime from, LocalDateTime to) {
-        Pageable pageable = PageRequest.of(page, size);
-        Page<Booking> bookings = bookingRepository.findByStatusAndStartAtBetween(status, from, to, pageable);
+    public Page<BookingResponse> getAllBookings(FilterBookingParams filters) {
+        Pageable pageable = PageRequest.of(filters.getPage() - 1, filters.getSize());
+        Page<Booking> bookings = bookingRepository
+                .findByStatusAndStartAtBetween(
+                        filters.getStatus(),
+                        filters.getFromDate().toLocalDateTime(),
+                        filters.getToDate().toLocalDateTime(),
+                        pageable
+                );
         return bookings.map(bookingMapper::toBookingResponse);
     }
 

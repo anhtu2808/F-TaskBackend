@@ -18,9 +18,9 @@ public class UserResponse {
     String username;
     String phone;
     String email;
-    Role role;
     Gender gender;
     String idCard;
     String fullName;
+    Role role;
 
 }
