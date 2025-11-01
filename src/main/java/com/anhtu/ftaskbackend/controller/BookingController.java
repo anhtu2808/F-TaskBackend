@@ -7,6 +7,7 @@ import com.anhtu.ftaskbackend.dto.response.booking.BookingResponse;
 import com.anhtu.ftaskbackend.service.BookingService;
 import lombok.AccessLevel;
 import lombok.experimental.FieldDefaults;
+import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
@@ -32,7 +33,7 @@ public class BookingController {
 
     @GetMapping
     @ResponseStatus(HttpStatus.OK)
-    public ApiResponse<Page<BookingResponse>> createBooking(@ModelAttribute FilterBooking params){
+    public ApiResponse<Page<BookingResponse>> getBookings(@ParameterObject FilterBooking params){
         return ApiResponse.<Page<BookingResponse>>builder()
                 .code(200)
                 .message("Get bookings successfully")
