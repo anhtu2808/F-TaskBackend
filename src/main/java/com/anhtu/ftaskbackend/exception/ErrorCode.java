@@ -23,6 +23,10 @@ public enum ErrorCode {
     OtpIsExpired(HttpStatus.BAD_REQUEST.value(), "The OTP is expired", HttpStatus.BAD_REQUEST),
     OtpIsNotSuitable(HttpStatus.BAD_REQUEST.value(), "The OTP isn't suitable", HttpStatus.BAD_REQUEST),
     BookingStartAtInvalid(HttpStatus.BAD_REQUEST.value(), "Start at invalid", HttpStatus.BAD_REQUEST),
+    NumberOfPartnerMustBeGreaterOne(HttpStatus.BAD_REQUEST.value(), "Number of partners in required multiple partners service variant must be greater than 1", HttpStatus.BAD_REQUEST),
+    NumberOfPartnerMustBeOne(HttpStatus.BAD_REQUEST.value(), "Number of partners in non-required multiple partners service variant must be 1", HttpStatus.BAD_REQUEST),
+    InvalidVariantPrice(HttpStatus.BAD_REQUEST.value(), "Variant price must be greater than 0", HttpStatus.BAD_REQUEST),
+    InvalidDurationHours(HttpStatus.BAD_REQUEST.value(), "Duration hours must be greater than 0", HttpStatus.BAD_REQUEST),
 
     //404 Not found
     UserNotFoundByPhone(HttpStatus.NOT_FOUND.value(), "This user does not exist with this phone number", HttpStatus.NOT_FOUND),
