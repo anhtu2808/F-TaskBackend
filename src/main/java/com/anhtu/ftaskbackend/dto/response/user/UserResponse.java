@@ -1,6 +1,5 @@
-package com.anhtu.ftaskbackend.dto.response.Customer;
+package com.anhtu.ftaskbackend.dto.response.user;
 
-import com.anhtu.ftaskbackend.dto.response.user.UserResponse;
 import com.anhtu.ftaskbackend.entity.Role;
 import com.anhtu.ftaskbackend.enums.Gender;
 import jakarta.persistence.*;
@@ -13,9 +12,15 @@ import lombok.experimental.FieldDefaults;
 @NoArgsConstructor
 @AllArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class CustomerResponse {
+public class UserResponse {
 
     Long id;
-    UserResponse user;
+    String username;
+    String phone;
+    String email;
+    Role role;
+    Gender gender;
+    String idCard;
+    String fullName;
 
 }

@@ -53,7 +53,7 @@ public class BookingController {
         return ApiResponse.<BookingResponse>builder()
                 .code(200)
                 .message("Get booking by id successfully")
-                .result(bookingService.getBooking(id))
+                .result(bookingService.getBookingById(id))
                 .build();
     }
 

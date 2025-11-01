@@ -9,6 +9,7 @@ import com.anhtu.ftaskbackend.entity.ServiceCatalogVariant;
 import com.anhtu.ftaskbackend.enums.BookingStatus;
 import com.anhtu.ftaskbackend.exception.AppException;
 import com.anhtu.ftaskbackend.exception.ErrorCode;
+import com.anhtu.ftaskbackend.helper.JWTHelper;
 import com.anhtu.ftaskbackend.mapper.BookingMapper;
 import com.anhtu.ftaskbackend.repository.AddressRepository;
 import com.anhtu.ftaskbackend.repository.BookingRepository;
@@ -42,9 +43,9 @@ public class BookingServiceImpl implements BookingService {
 
     @Override
     public BookingResponse createBooking(CreateBookingRequest request) {
-        String username = "phuhao"; // chuyen lai khi co ham get id trong token
-        Customer customer = customerRepository.findByUser_Username(username)
-                .orElseThrow(() -> new AppException(ErrorCode.CustomerNotFoundByUsername));
+        Long userId = JWTHelper.getCurrentUserId();
+        Customer customer = customerRepository.findByUser_Id(userId)
+                .orElseThrow(() -> new AppException(ErrorCode.CustomerNotFound));
         Address address = addressRepository.findById(request.getAddressId())
                 .orElseThrow(() -> new AppException(ErrorCode.AddressNotFound));
         ServiceCatalogVariant variant = variantRepository.findById(request.getVariantId())
@@ -58,7 +59,7 @@ public class BookingServiceImpl implements BookingService {
                 .address(address)
                 .variant(variant)
                 .totalPrice(variant.getPricePerVariant())
-                .requiredPartners(variant.getNumberOfPartners()) // customer yeu cau so luong nguoi hay lay so luong nguoi trong variant
+                .requiredPartners(variant.getNumberOfPartners())
                 .platformFee(variantPrice * platformFeePercent)
                 .startAt(request.getStartAt())
                 .completedAt(request.getStartAt().plusHours(variant.getDurationHours()))
@@ -76,7 +77,7 @@ public class BookingServiceImpl implements BookingService {
     }
 
     @Override
-    public BookingResponse getBooking(Long id) {
+    public BookingResponse getBookingById(Long id) {
         Booking booking = bookingRepository.findById(id)
                 .orElseThrow(() -> new AppException(ErrorCode.BookingNotFound));
         return bookingMapper.toBookingResponse(booking);

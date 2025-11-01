@@ -11,7 +11,7 @@ import com.anhtu.ftaskbackend.entity.ServiceCatalogVariant;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 
-@Mapper(componentModel = "spring", uses = {CustomerMapper.class, AddressMapper.class, ServiceVariantMapper.class})
+@Mapper(componentModel = "spring", uses = {CustomerMapper.class, AddressMapper.class, ServiceVariantMapper.class, BookingPartnerMapper.class})
 public interface BookingMapper {
 
     BookingResponse toBookingResponse(Booking booking);

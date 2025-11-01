@@ -33,6 +33,7 @@ public enum ErrorCode {
     AddressNotFound(HttpStatus.NOT_FOUND.value(), "Address not found", HttpStatus.NOT_FOUND),
     CustomerNotFoundByUsername(HttpStatus.NOT_FOUND.value(), "Customer does not exist with this username", HttpStatus.NOT_FOUND),
     BookingNotFound(HttpStatus.NOT_FOUND.value(), "Booking not found", HttpStatus.NOT_FOUND),
+    CustomerNotFound(HttpStatus.NOT_FOUND.value(), "Customer not found", HttpStatus.NOT_FOUND),
     ;
 
     ErrorCode(int code, String message, HttpStatusCode statusCode) {

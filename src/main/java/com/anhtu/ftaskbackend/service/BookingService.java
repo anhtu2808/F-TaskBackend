@@ -12,6 +12,6 @@ public interface BookingService {
 
     BookingResponse createBooking(CreateBookingRequest createBookingRequest);
     Page<BookingResponse> getAllBookings(int page, int size, BookingStatus status, LocalDateTime from, LocalDateTime to);
-    BookingResponse getBooking(Long id);
+    BookingResponse getBookingById(Long id);
 
 }

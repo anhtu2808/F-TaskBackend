@@ -12,6 +12,8 @@ import lombok.*;
 import lombok.experimental.FieldDefaults;
 
 import java.time.LocalDateTime;
+import java.util.List;
+import java.util.Set;
 
 @Getter
 @Setter
@@ -31,5 +33,6 @@ public class BookingResponse {
     CustomerResponse customer;
     ServiceVariantResponse variant;
     AddressResponse address;
+    Set<BookingPartnerResponse> partners;
 
 }
