@@ -1,6 +1,9 @@
 package com.anhtu.ftaskbackend.dto.request.auth;
 
 import com.anhtu.ftaskbackend.enums.AccountType;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.NotNull;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
@@ -12,12 +15,7 @@ import lombok.experimental.FieldDefaults;
 @AllArgsConstructor
 public class RegisterRequest {
 
-    String fullName;
-    String idCard;
+    @NotBlank @NotNull @NotEmpty
     String phone;
-    String email;
-    String referralCode;
-    String password;
-    String role;
 
 }

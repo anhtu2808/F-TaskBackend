@@ -37,3 +37,8 @@ jwt:
 speedSMS:
   token: ${SPSMS_TOKEN}
 
+infobip:
+  api: ${INFOBIP_API}
+  url: ${INFOBIP_URL}
+  sender: InfoSMS
+

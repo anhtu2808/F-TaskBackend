@@ -2,8 +2,13 @@ package com.anhtu.ftaskbackend.service.impl;
 
 import com.anhtu.ftaskbackend.dto.request.auth.LoginRequest;
 import com.anhtu.ftaskbackend.dto.request.auth.RegisterRequest;
+import com.anhtu.ftaskbackend.dto.request.auth.UpdateInformationRequest;
 import com.anhtu.ftaskbackend.dto.request.auth.VerifyOtpRequest;
 import com.anhtu.ftaskbackend.dto.response.auth.LoginResponse;
+import com.anhtu.ftaskbackend.dto.response.auth.SendOTPResponse;
+import com.anhtu.ftaskbackend.dto.response.user.UserResponse;
+import com.anhtu.ftaskbackend.entity.Customer;
+import com.anhtu.ftaskbackend.entity.Partner;
 import com.anhtu.ftaskbackend.entity.Permission;
 import com.anhtu.ftaskbackend.entity.User;
 import com.anhtu.ftaskbackend.enums.AccountType;
@@ -11,6 +16,8 @@ import com.anhtu.ftaskbackend.enums.OtpType;
 import com.anhtu.ftaskbackend.exception.AppException;
 import com.anhtu.ftaskbackend.exception.ErrorCode;
 import com.anhtu.ftaskbackend.mapper.UserMapper;
+import com.anhtu.ftaskbackend.repository.CustomerRepository;
+import com.anhtu.ftaskbackend.repository.PartnerRepository;
 import com.anhtu.ftaskbackend.repository.RoleRepository;
 import com.anhtu.ftaskbackend.repository.UserRepository;
 import com.anhtu.ftaskbackend.service.AuthService;
@@ -47,30 +54,22 @@ public class AuthServiceImpl implements AuthService {
     OtpService otpService;
     @Autowired
     RoleRepository roleRepository;
+    @Autowired
+    CustomerRepository customerRepository;
+    @Autowired
+    PartnerRepository partnerRepository;
 
     @Override
     public void register(RegisterRequest request) {
-        if(request.getEmail() != null){
-            if(userRepository.existsByEmail(request.getEmail())){
-                throw new AppException(ErrorCode.DuplicatedEmail);
-            }
+        if (request.getPhone().length() < 10 || !request.getPhone().startsWith("0")) {
+            throw new AppException(ErrorCode.InvalidPhoneNumber);
         }
-        if(request.getPhone() != null){
-            if(userRepository.existsByPhone(request.getPhone())){
-                throw new AppException(ErrorCode.DuplicatedPhone);
-            }
-        }
-        User user = userMapper.registerRequestToUser(request);
-        user.setPassword(passwordEncoder.encode(request.getPassword()));
-        switch (request.getRole()){
-            case "CUSTOMER" -> user.setRole(roleRepository.findByName("CUSTOMER")
-                    .orElseThrow(() -> new AppException(ErrorCode.RoleNotFoundByName)));
-            case "PARTNER" -> user.setRole(roleRepository.findByName("PARTNER")
-                    .orElseThrow(() -> new AppException(ErrorCode.RoleNotFoundByName)));
-        }
-        user.setIsActive(false);
-        userRepository.save(user);
-        otpService.sendOtp(user, OtpType.REGISTER);
+//        if(request.getEmail() != null){
+//            if(userRepository.existsByEmail(request.getEmail())){
+//                throw new AppException(ErrorCode.DuplicatedEmail);
+//            }
+//        }
+//        otpService.sendSms(user, OtpType.REGISTER);
     }
 
     @Override
@@ -89,13 +88,66 @@ public class AuthServiceImpl implements AuthService {
     }
 
     @Override
-    public LoginResponse verify(VerifyOtpRequest verifyOtpRequest) {
-        User user = otpService.verifyOtp(verifyOtpRequest);
-        return user != null ?
-                LoginResponse.builder()
-                        .accessToken(generateToken(user))
-                        .build() :
-                null;
+    public LoginResponse verify(VerifyOtpRequest request) {
+//        User user = otpService.verifyOtp(verifyOtpRequest.getOtp());
+//        if (user != userRepository.findByPhone(verifyOtpRequest.getPhone())
+//                .orElseThrow(() -> new AppException(ErrorCode.UserNotFoundByPhone))
+//        )
+//            throw new AppException(ErrorCode.UserNotMatch);
+        boolean isNewUser = true;
+        User user = userRepository.findByPhone(request.getPhone()).orElse(null);
+        if(user != null){
+            isNewUser = false;
+            user.setIsActive(true);
+            userRepository.save(user);
+        }
+        if(isNewUser){
+            user = User.builder()
+                    .phone(request.getPhone())
+                    .password(passwordEncoder.encode(request.getPhone()))  //password bây giờ là sđt để tránh lỗi
+                    .build();
+            user.setRole(roleRepository.findByName(request.getRole())
+                    .orElseThrow(() -> new AppException(ErrorCode.RoleNotFoundByName)));
+            userRepository.save(user);
+            switch (request.getRole()){
+                case "CUSTOMER": {
+
+                    break;
+                }
+                case "PARTNER": {
+                    Partner partner = Partner.builder()
+                            .user(user)
+                            .isAvailable(true)
+                            .build();
+                    partnerRepository.save(partner);
+                    break;
+                }
+            }
+        }
+        return LoginResponse.builder()
+                .accessToken(generateToken(user))
+                .userId(isNewUser ? user.getId() : null)
+                .isNewUser(isNewUser)
+                .build();
+    }
+
+    @Override
+    public UserResponse updateInfo(Long id, UpdateInformationRequest request) {
+        User user = userRepository.findById(id)
+                .orElseThrow(() -> new AppException(ErrorCode.UserNotFound));
+        userMapper.updateInfoToUser(request, user);
+        userRepository.save(user);
+        switch (user.getRole().getName()){
+            case "CUSTOMER" -> customerRepository.save(Customer.builder()
+                            .user(user)
+                    .build());
+            case "PARTNER" -> partnerRepository.save(Partner.builder()
+                            .user(user)
+                            .isAvailable(true)
+//                            .districtIdsJson()
+                    .build());
+        }
+        return userMapper.toUserResponse(user);
     }
 
     private String generateToken(User user) {
@@ -111,7 +163,7 @@ public class AuthServiceImpl implements AuthService {
                     .subject(user.getUsername())
                     .issuer("ftask")
                     .issueTime(new Date())
-                    .expirationTime(Date.from(Instant.now().plusSeconds(900)))
+                    .expirationTime(Date.from(Instant.now().plusSeconds(1209600)))
                     .claim("userId", user.getId())
                     .claim("role", user.getRole().getName())
                     .claim("permissions", scopes)
