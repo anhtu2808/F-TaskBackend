@@ -15,6 +15,7 @@ import com.anhtu.ftaskbackend.enums.AccountType;
 import com.anhtu.ftaskbackend.enums.OtpType;
 import com.anhtu.ftaskbackend.exception.AppException;
 import com.anhtu.ftaskbackend.exception.ErrorCode;
+import com.anhtu.ftaskbackend.helper.JWTHelper;
 import com.anhtu.ftaskbackend.mapper.UserMapper;
 import com.anhtu.ftaskbackend.repository.CustomerRepository;
 import com.anhtu.ftaskbackend.repository.PartnerRepository;
@@ -126,28 +127,9 @@ public class AuthServiceImpl implements AuthService {
         }
         return LoginResponse.builder()
                 .accessToken(generateToken(user))
-                .userId(isNewUser ? user.getId() : null)
+                .userId(isNewUser ? JWTHelper.getCurrentUserId() : null)
                 .isNewUser(isNewUser)
                 .build();
-    }
-
-    @Override
-    public UserResponse updateInfo(Long id, UpdateInformationRequest request) {
-        User user = userRepository.findById(id)
-                .orElseThrow(() -> new AppException(ErrorCode.UserNotFound));
-        userMapper.updateInfoToUser(request, user);
-        userRepository.save(user);
-        switch (user.getRole().getName()){
-            case "CUSTOMER" -> customerRepository.save(Customer.builder()
-                            .user(user)
-                    .build());
-            case "PARTNER" -> partnerRepository.save(Partner.builder()
-                            .user(user)
-                            .isAvailable(true)
-//                            .districtIdsJson()
-                    .build());
-        }
-        return userMapper.toUserResponse(user);
     }
 
     private String generateToken(User user) {

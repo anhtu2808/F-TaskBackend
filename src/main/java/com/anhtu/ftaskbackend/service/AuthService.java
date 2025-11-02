@@ -13,5 +13,5 @@ public interface AuthService {
     void register(RegisterRequest registerRequest);
     LoginResponse login(LoginRequest loginRequest);
     LoginResponse verify(VerifyOtpRequest verifyOtpRequest);
-    UserResponse updateInfo(Long id, UpdateInformationRequest request);
+
 }

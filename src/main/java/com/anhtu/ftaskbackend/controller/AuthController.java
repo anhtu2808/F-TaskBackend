@@ -30,7 +30,7 @@ public class AuthController {
     @PostMapping("/send-otp")
     @Operation(
             summary = "Send OTP to phone number",
-            description = "Hàm này khi hoàn tất sẽ send được tại giờ đang giới hạn"
+            description = "Hàm này dùng để login hoặc register khi call sẽ send otp nhưng hiện tại sẽ không gửi mà dùng otp: 123456"
     )
     public ApiResponse<Void> register(@RequestBody RegisterRequest registerRequest) {
         authService.register(registerRequest);
@@ -62,17 +62,5 @@ public class AuthController {
                 .build();
     }
 
-    @PutMapping("/update-info/{userId}")
-    @Operation(
-            summary = "Update information",
-            description = "Dành cho các user mới đăng nhập lần đầu"
-    )
-    public ApiResponse<UserResponse> updateInfo(@RequestBody UpdateInformationRequest request, @PathVariable Long userId) {
-        return ApiResponse.<UserResponse>builder()
-                .code(200)
-                .message("Update information success")
-                .result(authService.updateInfo(userId, request))
-                .build();
-    }
 
 }
