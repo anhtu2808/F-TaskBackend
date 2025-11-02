@@ -110,20 +110,6 @@ public class AuthServiceImpl implements AuthService {
             user.setRole(roleRepository.findByName(request.getRole())
                     .orElseThrow(() -> new AppException(ErrorCode.RoleNotFoundByName)));
             userRepository.save(user);
-            switch (request.getRole()){
-                case "CUSTOMER": {
-
-                    break;
-                }
-                case "PARTNER": {
-                    Partner partner = Partner.builder()
-                            .user(user)
-                            .isAvailable(true)
-                            .build();
-                    partnerRepository.save(partner);
-                    break;
-                }
-            }
         }
         return LoginResponse.builder()
                 .accessToken(generateToken(user))
