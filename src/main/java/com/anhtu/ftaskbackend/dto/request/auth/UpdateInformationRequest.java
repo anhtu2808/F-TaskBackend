@@ -14,7 +14,6 @@ import lombok.experimental.FieldDefaults;
 @AllArgsConstructor
 public class UpdateInformationRequest {
 
-    String phone;
     Gender gender;
     String fullName;
 
