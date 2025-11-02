@@ -95,6 +95,8 @@ public class AuthServiceImpl implements AuthService {
 //                .orElseThrow(() -> new AppException(ErrorCode.UserNotFoundByPhone))
 //        )
 //            throw new AppException(ErrorCode.UserNotMatch);
+        if(!request.getOtp().equals("123456"))
+            throw new AppException(ErrorCode.OtpIsInvalid);
         boolean isNewUser = true;
         User user = userRepository.findByPhone(request.getPhone()).orElse(null);
         if(user != null){
@@ -113,7 +115,7 @@ public class AuthServiceImpl implements AuthService {
         }
         return LoginResponse.builder()
                 .accessToken(generateToken(user))
-                .userId(isNewUser ? JWTHelper.getCurrentUserId() : null)
+                .userId(user.getId())
                 .isNewUser(isNewUser)
                 .build();
     }

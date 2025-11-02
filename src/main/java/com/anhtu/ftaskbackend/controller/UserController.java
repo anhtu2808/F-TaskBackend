@@ -35,12 +35,13 @@ public class UserController {
                 .build();
     }
 
-    @PutMapping("/update-info/{userId}")
+    @PutMapping("/update-info")
     @Operation(
             summary = "Update information",
             description = "Dành cho các user mới đăng nhập lần đầu"
     )
-    public ApiResponse<UserResponse> updateInfo(@RequestBody UpdateInformationRequest request, @PathVariable Long userId) {
+    public ApiResponse<UserResponse> updateInfo(@RequestBody UpdateInformationRequest request) {
+        Long userId = JWTHelper.getCurrentUserId();
         return ApiResponse.<UserResponse>builder()
                 .code(200)
                 .message("Update information success")
