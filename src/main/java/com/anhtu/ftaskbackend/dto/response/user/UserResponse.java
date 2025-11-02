@@ -21,6 +21,6 @@ public class UserResponse {
     Gender gender;
     String idCard;
     String fullName;
-    Role role;
+    String role;
 
 }

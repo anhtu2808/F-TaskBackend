@@ -1,24 +1,34 @@
 package com.anhtu.ftaskbackend.service.impl;
 
+import com.anhtu.ftaskbackend.dto.response.user.UserInfoResponse;
 import com.anhtu.ftaskbackend.entity.User;
+import com.anhtu.ftaskbackend.exception.AppException;
+import com.anhtu.ftaskbackend.exception.ErrorCode;
+import com.anhtu.ftaskbackend.helper.JWTHelper;
+import com.anhtu.ftaskbackend.mapper.UserMapper;
 import com.anhtu.ftaskbackend.repository.UserRepository;
 import com.anhtu.ftaskbackend.service.UserService;
-import lombok.AccessLevel;
+import jakarta.transaction.Transactional;
+import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.stereotype.Service;
 
+import static lombok.AccessLevel.PRIVATE;
+
 @Service
-@FieldDefaults(level = AccessLevel.PRIVATE)
-@Slf4j
+@RequiredArgsConstructor
+@FieldDefaults(level = PRIVATE, makeFinal = true)
+@Transactional
 public class UserServiceImpl implements UserService {
 
-    @Autowired
     UserRepository userRepository;
+    UserMapper userMapper;
 
     @Override
-    public User createUser(User user) {
-        return null;
+    public UserInfoResponse getCurrentUser(Long userId) {
+        User user = userRepository.findById(userId)
+                                  .orElseThrow(() -> new AppException(ErrorCode.UserNotFound));
+        return userMapper.toUserInfoResponse(user);
     }
 }

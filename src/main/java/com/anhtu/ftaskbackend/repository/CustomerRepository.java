@@ -14,4 +14,5 @@ public interface CustomerRepository extends JpaRepository<Customer, Long> {
     @Query("SELECT c FROM Customer c WHERE c.user.id = :id AND c.user.deleted = 0")
     Optional<Customer> findByUser_Id(@Param("id") Long id);
 
+
 }
