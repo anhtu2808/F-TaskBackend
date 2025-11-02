@@ -51,6 +51,10 @@ public class User extends AbstractAuditingEntity {
     @Column(name = "avatar_url", columnDefinition = "TEXT")
     String avatarUrl;
 
+    @OneToOne(mappedBy = "user", fetch = FetchType.LAZY)
+    Customer customer;
 
+    @OneToOne(mappedBy = "user", fetch = FetchType.LAZY)
+    Partner partner;
 }
 

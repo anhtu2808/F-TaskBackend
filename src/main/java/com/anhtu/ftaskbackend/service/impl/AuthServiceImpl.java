@@ -100,7 +100,7 @@ public class AuthServiceImpl implements AuthService {
 
     private String generateToken(User user) {
         try {
-            JWSHeader header = new JWSHeader(JWSAlgorithm.HS512);
+            JWSHeader header = new JWSHeader(JWSAlgorithm.HS256);
 
             Set<Permission> permissions = user.getRole().getPermissions();
             List<String> scopes = permissions.stream()
@@ -113,6 +113,8 @@ public class AuthServiceImpl implements AuthService {
                     .issueTime(new Date())
                     .expirationTime(Date.from(Instant.now().plusSeconds(900)))
                     .claim("userId", user.getId())
+                    .claim("customerId", user.getCustomer() != null ? user.getCustomer().getId() : null)
+                    .claim("partnerId", user.getPartner() != null ? user.getPartner().getId() : null)
                     .claim("role", user.getRole().getName())
                     .claim("permissions", scopes)
                     .build();
