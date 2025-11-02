@@ -31,6 +31,8 @@ public class SecurityConfig {
             "/health-check",
             "/service-catalogs",
             "/login/**",
+            "/auth/send-otp",
+            "/auth/verify-otp"
     };
 
     private static final String[] PUBLIC_GET = {
