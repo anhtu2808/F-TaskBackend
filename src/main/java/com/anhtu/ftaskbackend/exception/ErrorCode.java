@@ -27,6 +27,15 @@ public enum ErrorCode {
     NumberOfPartnerMustBeOne(HttpStatus.BAD_REQUEST.value(), "Number of partners in non-required multiple partners service variant must be 1", HttpStatus.BAD_REQUEST),
     InvalidVariantPrice(HttpStatus.BAD_REQUEST.value(), "Variant price must be greater than 0", HttpStatus.BAD_REQUEST),
     InvalidDurationHours(HttpStatus.BAD_REQUEST.value(), "Duration hours must be greater than 0", HttpStatus.BAD_REQUEST),
+    BookingAlreadyClaimedByThisPartner(HttpStatus.BAD_REQUEST.value(), "This booking has already been claimed by this partner", HttpStatus.BAD_REQUEST),
+    BookingPartnerLimitReached(HttpStatus.BAD_REQUEST.value(), "The booking has reached the partner claim limit", HttpStatus.BAD_REQUEST),
+    BookingClaimNotFound(HttpStatus.BAD_REQUEST.value(), "Partner not claim this booking", HttpStatus.BAD_REQUEST),
+    InvalidBookingStastusForStart(HttpStatus.BAD_REQUEST.value(), "Booking is not in a valid status to be started", HttpStatus.BAD_REQUEST),
+    BookingStartTimeMissing(HttpStatus.BAD_REQUEST.value(), "Booking start time is missing", HttpStatus.BAD_REQUEST),
+    BookingStartTimeTooEarly(HttpStatus.BAD_REQUEST.value(), "Too early to start (must be within 15 minutes)", HttpStatus.BAD_REQUEST),
+    BookingStatusInvalidForStart(HttpStatus.BAD_REQUEST.value(), "Booking status is not allowed to start", HttpStatus.BAD_REQUEST),
+    CustomerNotAcceptedForPartial(HttpStatus.BAD_REQUEST.value(), "Customer has not accepted for PARTIALLY_ACCEPTED booking", HttpStatus.BAD_REQUEST),
+    PartnerNotInWorkingStatus(HttpStatus.BAD_REQUEST.value(), "Partner is not in WORKING status", HttpStatus.BAD_REQUEST),
 
     //404 Not found
     UserNotFoundByPhone(HttpStatus.NOT_FOUND.value(), "This user does not exist with this phone number", HttpStatus.NOT_FOUND),
@@ -38,7 +47,9 @@ public enum ErrorCode {
     CustomerNotFoundByUsername(HttpStatus.NOT_FOUND.value(), "Customer does not exist with this username", HttpStatus.NOT_FOUND),
     BookingNotFound(HttpStatus.NOT_FOUND.value(), "Booking not found", HttpStatus.NOT_FOUND),
     CustomerNotFound(HttpStatus.NOT_FOUND.value(), "Customer not found", HttpStatus.NOT_FOUND),
-    UserNotFound(HttpStatus.NOT_FOUND.value(), "User not found", HttpStatus.NOT_FOUND);
+    UserNotFound(HttpStatus.NOT_FOUND.value(), "User not found", HttpStatus.NOT_FOUND),
+    PartnerNotFound(HttpStatus.NOT_FOUND.value(), "Partner not found", HttpStatus.NOT_FOUND),
+    ;
 
     ErrorCode(int code, String message, HttpStatusCode statusCode) {
         this.code = code;

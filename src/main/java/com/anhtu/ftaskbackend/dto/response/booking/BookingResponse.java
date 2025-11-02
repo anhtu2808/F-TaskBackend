@@ -7,6 +7,7 @@ import com.anhtu.ftaskbackend.entity.Address;
 import com.anhtu.ftaskbackend.entity.Customer;
 import com.anhtu.ftaskbackend.entity.ServiceCatalogVariant;
 import com.anhtu.ftaskbackend.enums.BookingStatus;
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
@@ -29,6 +30,13 @@ public class BookingResponse {
     String customerNote;
     Integer requiredPartners;
     BookingStatus status;
+    @Schema(
+            description = """
+                        Indicates whether the customer has accepted the booking.
+                        This field is only applicable when the booking status is PARTIALLY_ACCEPTED.
+                    """
+    )
+    Boolean isCustomerAccepted;
     LocalDateTime completedAt;
     CustomerResponse customer;
     ServiceVariantResponse variant;

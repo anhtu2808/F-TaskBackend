@@ -23,7 +23,8 @@ import java.util.Set;
 @SQLRestriction("deleted = 0")
 public class Booking extends AbstractAuditingEntity {
 
-    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     Long id;
 
     @ManyToOne
@@ -47,14 +48,22 @@ public class Booking extends AbstractAuditingEntity {
     @Column(nullable = false, name = "platform_fee")
     Double platformFee;
 
+    @Column(nullable = false, name = "is_customer_accepted")
+    @Builder.Default
+    Boolean isCustomerAccepted = false;
+
     @Column(columnDefinition = "TEXT", name = "customer_note")
     String customerNote;
 
-    @Column(name = "required_partners") @Builder.Default
+    @Column(name = "required_partners")
+    @Builder.Default
     Integer requiredPartners = 1;
 
     @Builder.Default
-    BookingStatus status = BookingStatus.PENDING;
+    @Enumerated(EnumType.STRING)
+    @Column(name = "status")
+    private BookingStatus status = BookingStatus.PENDING;
+
 
     @Column(columnDefinition = "TEXT", name = "cancel_reason")
     String cancelReason;
