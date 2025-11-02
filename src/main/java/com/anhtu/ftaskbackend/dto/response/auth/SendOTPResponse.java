@@ -9,10 +9,8 @@ import lombok.experimental.FieldDefaults;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class LoginResponse {
+public class SendOTPResponse {
 
-    String accessToken;
-    Long userId;
-    boolean isNewUser;
+    Boolean haveExisted;
 
 }

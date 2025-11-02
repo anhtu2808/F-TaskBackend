@@ -21,7 +21,7 @@ public enum ErrorCode {
     DuplicatedUsername(HttpStatus.BAD_REQUEST.value(), "This username has been used before, try another please!", HttpStatus.BAD_REQUEST),
     WrongPassword(HttpStatus.BAD_REQUEST.value(), "Provided password is wrong", HttpStatus.BAD_REQUEST),
     OtpIsExpired(HttpStatus.BAD_REQUEST.value(), "The OTP is expired", HttpStatus.BAD_REQUEST),
-    OtpIsNotSuitable(HttpStatus.BAD_REQUEST.value(), "The OTP isn't suitable", HttpStatus.BAD_REQUEST),
+    OtpIsInvalid(HttpStatus.BAD_REQUEST.value(), "The provided OTP is invalid", HttpStatus.BAD_REQUEST),
     BookingStartAtInvalid(HttpStatus.BAD_REQUEST.value(), "Start at invalid", HttpStatus.BAD_REQUEST),
     NumberOfPartnerMustBeGreaterOne(HttpStatus.BAD_REQUEST.value(), "Number of partners in required multiple partners service variant must be greater than 1", HttpStatus.BAD_REQUEST),
     NumberOfPartnerMustBeOne(HttpStatus.BAD_REQUEST.value(), "Number of partners in non-required multiple partners service variant must be 1", HttpStatus.BAD_REQUEST),
@@ -36,6 +36,8 @@ public enum ErrorCode {
     BookingStatusInvalidForStart(HttpStatus.BAD_REQUEST.value(), "Booking status is not allowed to start", HttpStatus.BAD_REQUEST),
     CustomerNotAcceptedForPartial(HttpStatus.BAD_REQUEST.value(), "Customer has not accepted for PARTIALLY_ACCEPTED booking", HttpStatus.BAD_REQUEST),
     PartnerNotInWorkingStatus(HttpStatus.BAD_REQUEST.value(), "Partner is not in WORKING status", HttpStatus.BAD_REQUEST),
+    UserNotMatch(HttpStatus.BAD_REQUEST.value(), "The OTP user is not matched with the phone user", HttpStatus.BAD_REQUEST),
+    InvalidPhoneNumber(HttpStatus.BAD_REQUEST.value(), "The provided Phone number is invalid", HttpStatus.BAD_REQUEST),
 
     //404 Not found
     UserNotFoundByPhone(HttpStatus.NOT_FOUND.value(), "This user does not exist with this phone number", HttpStatus.NOT_FOUND),
@@ -47,6 +49,7 @@ public enum ErrorCode {
     CustomerNotFoundByUsername(HttpStatus.NOT_FOUND.value(), "Customer does not exist with this username", HttpStatus.NOT_FOUND),
     BookingNotFound(HttpStatus.NOT_FOUND.value(), "Booking not found", HttpStatus.NOT_FOUND),
     CustomerNotFound(HttpStatus.NOT_FOUND.value(), "Customer not found", HttpStatus.NOT_FOUND),
+    MissingUserByOtp(HttpStatus.NOT_FOUND.value(), "This OTP is missing its user", HttpStatus.NOT_FOUND),
     UserNotFound(HttpStatus.NOT_FOUND.value(), "User not found", HttpStatus.NOT_FOUND),
     PartnerNotFound(HttpStatus.NOT_FOUND.value(), "Partner not found", HttpStatus.NOT_FOUND),
     ;

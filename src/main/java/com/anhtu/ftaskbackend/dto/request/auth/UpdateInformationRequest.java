@@ -1,8 +1,8 @@
 package com.anhtu.ftaskbackend.dto.request.auth;
 
-import com.anhtu.ftaskbackend.enums.OtpType;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
+import com.anhtu.ftaskbackend.entity.Role;
+import com.anhtu.ftaskbackend.enums.Gender;
+import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
@@ -12,11 +12,10 @@ import lombok.experimental.FieldDefaults;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class VerifyOtpRequest {
+public class UpdateInformationRequest {
 
-    @NotNull @NotBlank
     String phone;
-    String otp;
-    String role;
+    Gender gender;
+    String fullName;
 
 }

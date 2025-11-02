@@ -1,7 +1,9 @@
 package com.anhtu.ftaskbackend.controller;
 
 import com.anhtu.ftaskbackend.common.ApiResponse;
+import com.anhtu.ftaskbackend.dto.request.auth.UpdateInformationRequest;
 import com.anhtu.ftaskbackend.dto.response.user.UserInfoResponse;
+import com.anhtu.ftaskbackend.dto.response.user.UserResponse;
 import com.anhtu.ftaskbackend.helper.JWTHelper;
 import com.anhtu.ftaskbackend.service.UserService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -30,6 +32,19 @@ public class UserController {
         return ApiResponse.<UserInfoResponse>builder()
                 .message("User info retrieved successfully")
                 .result(userInfo)
+                .build();
+    }
+
+    @PutMapping("/update-info/{userId}")
+    @Operation(
+            summary = "Update information",
+            description = "Dành cho các user mới đăng nhập lần đầu"
+    )
+    public ApiResponse<UserResponse> updateInfo(@RequestBody UpdateInformationRequest request, @PathVariable Long userId) {
+        return ApiResponse.<UserResponse>builder()
+                .code(200)
+                .message("Update information success")
+                .result(userService.updateInfo(userId, request))
                 .build();
     }
 }
