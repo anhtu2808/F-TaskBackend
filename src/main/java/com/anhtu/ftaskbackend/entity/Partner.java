@@ -7,6 +7,9 @@ import lombok.experimental.FieldDefaults;
 import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.SQLRestriction;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Getter
 @Setter
 @Builder
@@ -38,8 +41,11 @@ public class Partner extends AbstractAuditingEntity {
     @Column(name = "is_available")
     Boolean isAvailable = true;
 
-    @Column(columnDefinition = "JSON", name = "district_ids")
-    String districtIdsJson;
+    @ElementCollection
+    @CollectionTable(name = "partner_districts", joinColumns = @JoinColumn(name = "partner_id"))
+    @Column(name = "district_name")
+    @Builder.Default
+    List<String> districts = new ArrayList<>();
 
     @OneToOne
     @JoinColumn(name = "wallet_id", referencedColumnName = "id", nullable = false)

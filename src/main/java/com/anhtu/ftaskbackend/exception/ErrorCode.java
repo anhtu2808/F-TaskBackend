@@ -52,6 +52,8 @@ public enum ErrorCode {
     MissingUserByOtp(HttpStatus.NOT_FOUND.value(), "This OTP is missing its user", HttpStatus.NOT_FOUND),
     UserNotFound(HttpStatus.NOT_FOUND.value(), "User not found", HttpStatus.NOT_FOUND),
     PartnerNotFound(HttpStatus.NOT_FOUND.value(), "Partner not found", HttpStatus.NOT_FOUND),
+    FcmNotFound(HttpStatus.NOT_FOUND.value(), "FCM token is invalid or not found", HttpStatus.NOT_FOUND),
+    NotificationNotFound(HttpStatus.NOT_FOUND.value(), "Notification not found", HttpStatus.NOT_FOUND)
     ;
 
     ErrorCode(int code, String message, HttpStatusCode statusCode) {
