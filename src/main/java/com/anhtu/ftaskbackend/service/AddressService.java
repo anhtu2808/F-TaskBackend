@@ -5,9 +5,9 @@ import com.anhtu.ftaskbackend.dto.response.address.AddressResponse;
 import java.util.List;
 
 public interface AddressService {
-    AddressResponse create(AddressRequest request);
-    AddressResponse update(Long id, AddressRequest request);
-    void delete(Long id);
-    AddressResponse getById(Long id);
-    List<AddressResponse> getAllByCustomer(Long customerId);
+    AddressResponse create(Long userId, AddressRequest request);
+    AddressResponse update(Long userId, Long addressId, AddressRequest request);
+    void delete(Long userId, Long addressId);
+    AddressResponse getById(Long userId, Long addressId);
+    List<AddressResponse> getAllByCurrentUser(Long userId);
 }
