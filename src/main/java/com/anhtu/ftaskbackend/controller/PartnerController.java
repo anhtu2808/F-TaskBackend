@@ -16,7 +16,7 @@ import java.util.List;
 @RestController
 @AllArgsConstructor
 @RequestMapping("/partners")
-@Tag(name = "Partner", description = "Partner management APIs")
+@Tag(name = "Partner", description = "APIs for Partner")
 public class PartnerController {
 
     private final PartnerService partnerService;
