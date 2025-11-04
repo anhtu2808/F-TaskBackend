@@ -2,6 +2,7 @@ package com.anhtu.ftaskbackend.controller;
 
 import com.anhtu.ftaskbackend.common.ApiResponse;
 import com.anhtu.ftaskbackend.dto.request.review.ReviewRequest;
+import com.anhtu.ftaskbackend.dto.request.review.UpdateReviewRequest;
 import com.anhtu.ftaskbackend.dto.response.review.ReviewResponse;
 import com.anhtu.ftaskbackend.helper.JWTHelper;
 import com.anhtu.ftaskbackend.service.ReviewService;
@@ -32,6 +33,19 @@ public class ReviewController {
         return ApiResponse.<ReviewResponse>builder()
                 .code(HttpStatus.CREATED.value())
                 .message("Review created successfully")
+                .result(response)
+                .build();
+    }
+
+    @PutMapping("/{reviewId}")
+    @Operation(summary = "Update review (only by review creator)")
+    public ApiResponse<ReviewResponse> updateReview(
+            @PathVariable Long reviewId,
+            @Valid @RequestBody UpdateReviewRequest request) {
+        Long userId = JWTHelper.getCurrentUserId();
+        ReviewResponse response = reviewService.updateReview(userId, reviewId, request);
+        return ApiResponse.<ReviewResponse>builder()
+                .message("Review updated successfully")
                 .result(response)
                 .build();
     }

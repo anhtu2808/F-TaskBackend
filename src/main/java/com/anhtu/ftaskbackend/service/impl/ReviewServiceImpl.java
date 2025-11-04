@@ -1,6 +1,7 @@
 package com.anhtu.ftaskbackend.service.impl;
 
 import com.anhtu.ftaskbackend.dto.request.review.ReviewRequest;
+import com.anhtu.ftaskbackend.dto.request.review.UpdateReviewRequest;
 import com.anhtu.ftaskbackend.dto.response.review.ReviewResponse;
 import com.anhtu.ftaskbackend.entity.*;
 import com.anhtu.ftaskbackend.enums.BookingStatus;
@@ -74,6 +75,33 @@ public class ReviewServiceImpl implements ReviewService {
 
         log.info("Customer {} created review for partner {} on booking {}", 
                  customer.getId(), partner.getId(), booking.getId());
+
+        return mapper.toResponse(review);
+    }
+
+    @Override
+    public ReviewResponse updateReview(Long userId, Long reviewId, UpdateReviewRequest request) {
+        Customer customer = customerRepository.findByUser_Id(userId)
+                .orElseThrow(() -> new AppException(ErrorCode.CustomerNotFound));
+
+        Review review = reviewRepository.findById(reviewId)
+                .orElseThrow(() -> new AppException(ErrorCode.ReviewNotFound));
+
+        // Kiểm tra review có phải của customer này không
+        if (!review.getCustomer().getId().equals(customer.getId())) {
+            throw new AppException(ErrorCode.UNAUTHORIZED);
+        }
+
+        // Update rating và description
+        review.setRating(request.getRating());
+        review.setDescription(request.getDescription());
+        
+        reviewRepository.save(review);
+
+        // Cập nhật lại rating trung bình của partner
+        updatePartnerAverageRating(review.getPartner().getId());
+
+        log.info("Customer {} updated review {}", customer.getId(), reviewId);
 
         return mapper.toResponse(review);
     }
