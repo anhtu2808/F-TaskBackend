@@ -1,19 +1,14 @@
 package com.anhtu.ftaskbackend.controller;
 
 import com.anhtu.ftaskbackend.common.ApiResponse;
-import com.anhtu.ftaskbackend.dto.request.auth.LoginRequest;
 import com.anhtu.ftaskbackend.dto.request.auth.RegisterRequest;
-import com.anhtu.ftaskbackend.dto.request.auth.UpdateInformationRequest;
 import com.anhtu.ftaskbackend.dto.request.auth.VerifyOtpRequest;
 import com.anhtu.ftaskbackend.dto.response.auth.LoginResponse;
-import com.anhtu.ftaskbackend.dto.response.auth.SendOTPResponse;
-import com.anhtu.ftaskbackend.dto.response.user.UserResponse;
 import com.anhtu.ftaskbackend.service.AuthService;
 import com.anhtu.ftaskbackend.service.OtpService;
 import io.swagger.v3.oas.annotations.Operation;
 import lombok.AccessLevel;
 import lombok.experimental.FieldDefaults;
-import org.checkerframework.checker.units.qual.A;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
