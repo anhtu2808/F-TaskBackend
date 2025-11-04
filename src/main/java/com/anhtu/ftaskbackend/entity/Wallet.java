@@ -35,4 +35,9 @@ public class Wallet extends AbstractAuditingEntity {
     @Column(name = "total_withdrawn")
     Double totalWithdrawn = 0.0;
 
+    @OneToOne
+    @JoinColumn(name = "user_id", referencedColumnName = "id")
+    User user;
+
+
 }

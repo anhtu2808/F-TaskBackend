@@ -41,8 +41,4 @@ public class Partner extends AbstractAuditingEntity {
     @Column(columnDefinition = "JSON", name = "district_ids")
     String districtIdsJson;
 
-    @OneToOne
-    @JoinColumn(name = "wallet_id", referencedColumnName = "id", nullable = false)
-    Wallet wallet;
-
 }

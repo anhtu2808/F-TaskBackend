@@ -38,6 +38,8 @@ public enum ErrorCode {
     PartnerNotInWorkingStatus(HttpStatus.BAD_REQUEST.value(), "Partner is not in WORKING status", HttpStatus.BAD_REQUEST),
     UserNotMatch(HttpStatus.BAD_REQUEST.value(), "The OTP user is not matched with the phone user", HttpStatus.BAD_REQUEST),
     InvalidPhoneNumber(HttpStatus.BAD_REQUEST.value(), "The provided Phone number is invalid", HttpStatus.BAD_REQUEST),
+    InvalidOrderInfo(HttpStatus.BAD_REQUEST.value(), "The provided order info is invalid", HttpStatus.BAD_REQUEST),
+    UnknownType(HttpStatus.BAD_REQUEST.value(), "Unknown payment type", HttpStatus.BAD_REQUEST),
 
     //404 Not found
     UserNotFoundByPhone(HttpStatus.NOT_FOUND.value(), "This user does not exist with this phone number", HttpStatus.NOT_FOUND),
@@ -52,6 +54,7 @@ public enum ErrorCode {
     MissingUserByOtp(HttpStatus.NOT_FOUND.value(), "This OTP is missing its user", HttpStatus.NOT_FOUND),
     UserNotFound(HttpStatus.NOT_FOUND.value(), "User not found", HttpStatus.NOT_FOUND),
     PartnerNotFound(HttpStatus.NOT_FOUND.value(), "Partner not found", HttpStatus.NOT_FOUND),
+    BookingPartnerNotFound(HttpStatus.NO_CONTENT.value(), "Booking partner not found", HttpStatus.NOT_FOUND)
     ;
 
     ErrorCode(int code, String message, HttpStatusCode statusCode) {

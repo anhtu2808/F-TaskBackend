@@ -42,3 +42,8 @@ infobip:
   url: ${INFOBIP_URL}
   sender: InfoSMS
 
+vnpay:
+  code: ${VNPAY_CODE}
+  hash_secret: ${VNPAY_HASH_SECRET}
+  url: ${VNPAY_URL}
+  return: ${VNPAY_RETURN}

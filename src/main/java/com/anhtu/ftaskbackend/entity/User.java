@@ -56,5 +56,9 @@ public class User extends AbstractAuditingEntity {
 
     @OneToOne(mappedBy = "user", fetch = FetchType.LAZY)
     Partner partner;
+
+    @OneToOne
+    @JoinColumn(name = "wallet_id", referencedColumnName = "id", nullable = false)
+    Wallet wallet;
 }
 

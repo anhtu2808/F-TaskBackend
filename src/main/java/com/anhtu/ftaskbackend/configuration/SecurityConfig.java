@@ -48,6 +48,7 @@ public class SecurityConfig {
             "/roles/**",
             "/swagger-resources/**",
             "/webjars/**",
+            "/payments/vnpay-return/**"
     };
 
     private final CustomJwtDecoder customJwtDecoder;
