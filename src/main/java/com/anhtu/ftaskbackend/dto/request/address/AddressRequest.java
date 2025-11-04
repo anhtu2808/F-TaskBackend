@@ -1,5 +1,6 @@
 package com.anhtu.ftaskbackend.dto.request.address;
 
+import jakarta.validation.constraints.NotBlank;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
@@ -10,12 +11,18 @@ import lombok.experimental.FieldDefaults;
 @AllArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class AddressRequest {
-    Long customerId;
     String addressLine;
+    
+    @NotBlank(message = "District is required")
     String district;
+    
+    @NotBlank(message = "City is required")
     String city;
+    
     String postalCode;
     Double latitude;
     Double longitude;
-    Boolean isDefault;
+    
+    @Builder.Default
+    Boolean isDefault = false;
 }

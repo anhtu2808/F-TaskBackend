@@ -13,6 +13,7 @@ import com.anhtu.ftaskbackend.service.AddressService;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -23,6 +24,7 @@ import static lombok.AccessLevel.PRIVATE;
 @RequiredArgsConstructor
 @FieldDefaults(level = PRIVATE, makeFinal = true)
 @Transactional
+@Slf4j
 public class AddressServiceImpl implements AddressService {
 
     AddressRepository addressRepository;
@@ -30,51 +32,98 @@ public class AddressServiceImpl implements AddressService {
     AddressMapper mapper;
 
     @Override
-    public AddressResponse create(AddressRequest request) {
-        Customer customer = customerRepository.findById(request.getCustomerId())
-                                              .orElseThrow(() -> new AppException(ErrorCode.CustomerNotFound));
+    public List<AddressResponse> getAllByCurrentUser(Long userId) {
+        Customer customer = customerRepository.findByUser_Id(userId)
+                .orElseThrow(() -> new AppException(ErrorCode.CustomerNotFound));
+
+        return addressRepository.findByCustomerId(customer.getId())
+                .stream()
+                .map(mapper::toResponse)
+                .toList();
+    }
+
+    @Override
+    public AddressResponse create(Long userId, AddressRequest request) {
+        Customer customer = customerRepository.findByUser_Id(userId)
+                .orElseThrow(() -> new AppException(ErrorCode.CustomerNotFound));
 
         Address entity = mapper.toEntity(request);
         entity.setCustomer(customer);
 
+        List<Address> existingAddresses = addressRepository.findByCustomerId(customer.getId());
+        
+        if (existingAddresses.isEmpty()) {
+            entity.setIsDefault(true);
+        } else if (Boolean.TRUE.equals(request.getIsDefault())) {
+            setAllAddressesNotDefault(customer.getId());
+        }
+
         addressRepository.save(entity);
+        log.info("Created address {} for customer {}", entity.getId(), customer.getId());
         return mapper.toResponse(entity);
     }
 
     @Override
-    public AddressResponse update(Long id, AddressRequest request) {
-        Address entity = addressRepository.findById(id)
-                                          .orElseThrow(() -> new AppException(ErrorCode.AddressNotFound));
+    public AddressResponse update(Long userId, Long addressId, AddressRequest request) {
+        Customer customer = customerRepository.findByUser_Id(userId)
+                .orElseThrow(() -> new AppException(ErrorCode.CustomerNotFound));
+
+        Address entity = addressRepository.findById(addressId)
+                .orElseThrow(() -> new AppException(ErrorCode.AddressNotFound));
+
+        // Kiểm tra address có thuộc về customer này không
+        if (!entity.getCustomer().getId().equals(customer.getId())) {
+            throw new AppException(ErrorCode.UNAUTHORIZED);
+        }
+
+        // Nếu set isDefault = true, set tất cả address khác thành false
+        if (Boolean.TRUE.equals(request.getIsDefault())) {
+            setAllAddressesNotDefault(customer.getId());
+        }
 
         mapper.updateEntityFromRequest(request, entity);
         addressRepository.save(entity);
 
+        log.info("Updated address {} for customer {}", addressId, customer.getId());
         return mapper.toResponse(entity);
     }
 
     @Override
-    public AddressResponse getById(Long id) {
-        Address entity = addressRepository.findById(id)
-                                          .orElseThrow(() -> new AppException(ErrorCode.AddressNotFound));
-        return mapper.toResponse(entity);
-    }
+    public AddressResponse getById(Long userId, Long addressId) {
+        Customer customer = customerRepository.findByUser_Id(userId)
+                .orElseThrow(() -> new AppException(ErrorCode.CustomerNotFound));
 
-    @Override
-    public List<AddressResponse> getAllByCustomer(Long customerId) {
-        if (!customerRepository.existsById(customerId)) {
-            throw new AppException(ErrorCode.CustomerNotFound);
+        Address entity = addressRepository.findById(addressId)
+                .orElseThrow(() -> new AppException(ErrorCode.AddressNotFound));
+
+        // Kiểm tra address có thuộc về customer này không
+        if (!entity.getCustomer().getId().equals(customer.getId())) {
+            throw new AppException(ErrorCode.UNAUTHORIZED);
         }
 
-        return addressRepository.findByCustomerId(customerId)
-                                .stream()
-                                .map(mapper::toResponse)
-                                .toList();
+        return mapper.toResponse(entity);
     }
 
     @Override
-    public void delete(Long id) {
-        Address entity = addressRepository.findById(id)
-                                          .orElseThrow(() -> new AppException(ErrorCode.AddressNotFound));
+    public void delete(Long userId, Long addressId) {
+        Customer customer = customerRepository.findByUser_Id(userId)
+                .orElseThrow(() -> new AppException(ErrorCode.CustomerNotFound));
+
+        Address entity = addressRepository.findById(addressId)
+                .orElseThrow(() -> new AppException(ErrorCode.AddressNotFound));
+
+        // Kiểm tra address có thuộc về customer này không
+        if (!entity.getCustomer().getId().equals(customer.getId())) {
+            throw new AppException(ErrorCode.UNAUTHORIZED);
+        }
+
         addressRepository.delete(entity);
+        log.info("Deleted address {} for customer {}", addressId, customer.getId());
+    }
+
+    private void setAllAddressesNotDefault(Long customerId) {
+        List<Address> addresses = addressRepository.findByCustomerId(customerId);
+        addresses.forEach(addr -> addr.setIsDefault(false));
+        addressRepository.saveAll(addresses);
     }
 }
