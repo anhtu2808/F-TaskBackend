@@ -2,6 +2,7 @@ package com.anhtu.ftaskbackend.controller;
 
 import com.anhtu.ftaskbackend.common.ApiResponse;
 import com.anhtu.ftaskbackend.dto.response.address.AddressResponse;
+import com.anhtu.ftaskbackend.helper.JWTHelper;
 import com.anhtu.ftaskbackend.service.AddressService;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -21,8 +22,9 @@ import static lombok.AccessLevel.PRIVATE;
 public class CustomerController {
     AddressService addressService;
 
-    @GetMapping("/{customerId}/address")
-    public ApiResponse<List<AddressResponse>> getAllByCustomer(@PathVariable Long customerId) {
+    @GetMapping("/addresses")
+    public ApiResponse<List<AddressResponse>> getAllByCustomer() {
+        Long customerId = JWTHelper.getCurrentCustomerId();
         List<AddressResponse> responses = addressService.getAllByCurrentUser(customerId);
         return ApiResponse.<List<AddressResponse>>builder()
                 .result(responses)

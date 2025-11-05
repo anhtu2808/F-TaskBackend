@@ -32,8 +32,8 @@ public class AddressServiceImpl implements AddressService {
     AddressMapper mapper;
 
     @Override
-    public List<AddressResponse> getAllByCurrentUser(Long userId) {
-        Customer customer = customerRepository.findByUser_Id(userId)
+    public List<AddressResponse> getAllByCurrentUser(Long customerId) {
+        Customer customer = customerRepository.findById(customerId)
                 .orElseThrow(() -> new AppException(ErrorCode.CustomerNotFound));
 
         return addressRepository.findByCustomerId(customer.getId())
