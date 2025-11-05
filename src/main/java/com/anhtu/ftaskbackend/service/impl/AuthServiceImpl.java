@@ -132,17 +132,17 @@ public class AuthServiceImpl implements AuthService {
 
             String role = user.getRole().getName();
             String roleId = "";
-            String value = "";
+            Long value = 0L;
             switch (role){
                 case "CUSTOMER" -> {
                     roleId = "customerId";
                     value = customerRepository.findByUser_Id(user.getId())
-                            .orElseThrow(() -> new AppException(ErrorCode.CustomerNotFound)).getId().toString();
+                            .orElseThrow(() -> new AppException(ErrorCode.CustomerNotFound)).getId();
                 }
                 case "PARTNER" -> {
                     roleId = "partnerId";
                     value = partnerRepository.findByUser_Id(user.getId())
-                            .orElseThrow(() -> new AppException(ErrorCode.PartnerNotFound)).getId().toString();
+                            .orElseThrow(() -> new AppException(ErrorCode.PartnerNotFound)).getId();
                 }
             }
 
