@@ -1,18 +1,14 @@
 package com.anhtu.ftaskbackend.controller;
 
 import com.anhtu.ftaskbackend.common.ApiResponse;
-import com.anhtu.ftaskbackend.dto.request.auth.UpdateInformationRequest;
+import com.anhtu.ftaskbackend.dto.request.auth.UpdateUserInfoRequest;
 import com.anhtu.ftaskbackend.dto.response.user.UserInfoResponse;
 import com.anhtu.ftaskbackend.dto.response.user.UserResponse;
 import com.anhtu.ftaskbackend.helper.JWTHelper;
 import com.anhtu.ftaskbackend.service.UserService;
 import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.media.Content;
-import io.swagger.v3.oas.annotations.media.Schema;
-import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
-import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import static lombok.AccessLevel.PRIVATE;
@@ -40,7 +36,7 @@ public class UserController {
             summary = "Update information",
             description = "Dành cho các user mới đăng nhập lần đầu"
     )
-    public ApiResponse<UserResponse> updateInfo(@RequestBody UpdateInformationRequest request) {
+    public ApiResponse<UserResponse> updateInfo(@RequestBody UpdateUserInfoRequest request) {
         Long userId = JWTHelper.getCurrentUserId();
         return ApiResponse.<UserResponse>builder()
                 .code(200)

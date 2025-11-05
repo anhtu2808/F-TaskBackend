@@ -25,6 +25,7 @@ public class SecurityConfig {
     private static final String[] PUBLIC_POST = {
             "/auth/register",
             "/auth/login",
+            "/notifications/**",
             "/auth/introspect",
             "/auth/logout",
             "/auth/refresh",

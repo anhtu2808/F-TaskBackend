@@ -1,8 +1,6 @@
 package com.anhtu.ftaskbackend.dto.request.auth;
 
-import com.anhtu.ftaskbackend.entity.Role;
 import com.anhtu.ftaskbackend.enums.Gender;
-import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
@@ -12,9 +10,10 @@ import lombok.experimental.FieldDefaults;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class UpdateInformationRequest {
+public class UpdateUserInfoRequest {
 
     Gender gender;
+    String fcmToken;
     String fullName;
 
 }

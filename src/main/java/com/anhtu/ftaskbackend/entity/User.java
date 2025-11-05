@@ -31,6 +31,9 @@ public class User extends AbstractAuditingEntity {
     @Column(length = 100, unique = true)
     String email;
 
+    @Column(name = "fcm_token", columnDefinition = "TEXT")
+    String fcmToken;
+
     @Column(length = 100)
     String password;
 
