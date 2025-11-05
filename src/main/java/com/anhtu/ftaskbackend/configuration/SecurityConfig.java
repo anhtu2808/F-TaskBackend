@@ -49,7 +49,7 @@ public class SecurityConfig {
             "/roles/**",
             "/swagger-resources/**",
             "/webjars/**",
-            "/partners/*/reviews"
+            "/partners/*/reviews",
             "/payments/vnpay-return/**"
     };
 
