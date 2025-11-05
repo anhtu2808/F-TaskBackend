@@ -130,6 +130,22 @@ public class AuthServiceImpl implements AuthService {
                     .map(Permission::getName)
                     .collect(Collectors.toList());
 
+            String role = user.getRole().getName();
+            String roleId = "";
+            String value = "";
+            switch (role){
+                case "CUSTOMER" -> {
+                    roleId = "customerId";
+                    value = customerRepository.findByUser_Id(user.getId())
+                            .orElseThrow(() -> new AppException(ErrorCode.CustomerNotFound)).getId().toString();
+                }
+                case "PARTNER" -> {
+                    roleId = "partnerId";
+                    value = partnerRepository.findByUser_Id(user.getId())
+                            .orElseThrow(() -> new AppException(ErrorCode.PartnerNotFound)).getId().toString();
+                }
+            }
+
             JWTClaimsSet claimsSet = new JWTClaimsSet.Builder()
                     .subject(user.getUsername())
                     .issuer("ftask")
@@ -139,6 +155,7 @@ public class AuthServiceImpl implements AuthService {
                     .claim("customerId", user.getCustomer() != null ? user.getCustomer().getId() : null)
                     .claim("partnerId", user.getPartner() != null ? user.getPartner().getId() : null)
                     .claim("role", user.getRole().getName())
+                    .claim(roleId, value)
                     .claim("permissions", scopes)
                     .build();
 
