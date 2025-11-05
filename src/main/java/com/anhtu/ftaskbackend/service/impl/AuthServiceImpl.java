@@ -2,17 +2,11 @@ package com.anhtu.ftaskbackend.service.impl;
 
 import com.anhtu.ftaskbackend.dto.request.auth.LoginRequest;
 import com.anhtu.ftaskbackend.dto.request.auth.RegisterRequest;
-import com.anhtu.ftaskbackend.dto.request.auth.UpdateInformationRequest;
 import com.anhtu.ftaskbackend.dto.request.auth.VerifyOtpRequest;
 import com.anhtu.ftaskbackend.dto.response.auth.LoginResponse;
-import com.anhtu.ftaskbackend.dto.response.auth.SendOTPResponse;
-import com.anhtu.ftaskbackend.dto.response.user.UserResponse;
 import com.anhtu.ftaskbackend.entity.*;
-import com.anhtu.ftaskbackend.enums.AccountType;
-import com.anhtu.ftaskbackend.enums.OtpType;
 import com.anhtu.ftaskbackend.exception.AppException;
 import com.anhtu.ftaskbackend.exception.ErrorCode;
-import com.anhtu.ftaskbackend.helper.JWTHelper;
 import com.anhtu.ftaskbackend.mapper.UserMapper;
 import com.anhtu.ftaskbackend.repository.*;
 import com.anhtu.ftaskbackend.service.AuthService;
@@ -73,10 +67,10 @@ public class AuthServiceImpl implements AuthService {
     public LoginResponse login(LoginRequest loginRequest) {
         User user = userRepository.findByPhone(loginRequest.getPhone())
                 .orElseThrow(() -> new AppException(ErrorCode.UserNotFoundByPhone));
-        if (!passwordEncoder.matches(loginRequest.getPassword(), user.getPassword())) {
+        if(!passwordEncoder.matches(loginRequest.getPassword(), user.getPassword())) {
             throw new AppException(ErrorCode.WrongPassword);
         }
-        if (!user.getIsActive()) {
+        if(!user.getIsActive()){
             throw new AppException(ErrorCode.UNAUTHORIZED);
         }
         return LoginResponse.builder()
@@ -91,16 +85,16 @@ public class AuthServiceImpl implements AuthService {
 //                .orElseThrow(() -> new AppException(ErrorCode.UserNotFoundByPhone))
 //        )
 //            throw new AppException(ErrorCode.UserNotMatch);
-        if (!request.getOtp().equals("123456"))
+        if(!request.getOtp().equals("123456"))
             throw new AppException(ErrorCode.OtpIsInvalid);
         boolean isNewUser = true;
         User user = userRepository.findByPhone(request.getPhone()).orElse(null);
-        if (user != null) {
+        if(user != null){
             isNewUser = false;
             user.setIsActive(true);
             userRepository.save(user);
         }
-        if (isNewUser) {
+        if(isNewUser){
             user = User.builder()
                     .phone(request.getPhone())
                     .password(passwordEncoder.encode(request.getPhone()))  //password bây giờ là sđt để tránh lỗi

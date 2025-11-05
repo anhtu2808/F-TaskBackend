@@ -42,6 +42,14 @@ infobip:
   url: ${INFOBIP_URL}
   sender: InfoSMS
 
+firebase:
+  project-id: ${FIREBASE_PROJECT_ID}
+  private-key: ${FIREBASE_PRIVATE_KEY}
+  private-key-id: ${FIREBASE_PRIVATE_KEY_ID}
+  client-email: ${FIREBASE_CLIENT_EMAIL}
+  client-id: ${FIREBASE_CLIENT_ID}
+
+
 vnpay:
   code: ${VNPAY_CODE}
   hash_secret: ${VNPAY_HASH_SECRET}

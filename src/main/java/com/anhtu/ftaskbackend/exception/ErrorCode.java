@@ -38,6 +38,9 @@ public enum ErrorCode {
     PartnerNotInWorkingStatus(HttpStatus.BAD_REQUEST.value(), "Partner is not in WORKING status", HttpStatus.BAD_REQUEST),
     UserNotMatch(HttpStatus.BAD_REQUEST.value(), "The OTP user is not matched with the phone user", HttpStatus.BAD_REQUEST),
     InvalidPhoneNumber(HttpStatus.BAD_REQUEST.value(), "The provided Phone number is invalid", HttpStatus.BAD_REQUEST),
+    BookingNotCompleted(HttpStatus.BAD_REQUEST.value(), "Booking must be completed to create review", HttpStatus.BAD_REQUEST),
+    PartnerNotInBooking(HttpStatus.BAD_REQUEST.value(), "Partner did not work on this booking", HttpStatus.BAD_REQUEST),
+    ReviewAlreadyExists(HttpStatus.BAD_REQUEST.value(), "You have already reviewed this partner for this booking", HttpStatus.BAD_REQUEST),
     InvalidOrderInfo(HttpStatus.BAD_REQUEST.value(), "The provided order info is invalid", HttpStatus.BAD_REQUEST),
     UnknownType(HttpStatus.BAD_REQUEST.value(), "Unknown payment type", HttpStatus.BAD_REQUEST),
 
@@ -54,6 +57,9 @@ public enum ErrorCode {
     MissingUserByOtp(HttpStatus.NOT_FOUND.value(), "This OTP is missing its user", HttpStatus.NOT_FOUND),
     UserNotFound(HttpStatus.NOT_FOUND.value(), "User not found", HttpStatus.NOT_FOUND),
     PartnerNotFound(HttpStatus.NOT_FOUND.value(), "Partner not found", HttpStatus.NOT_FOUND),
+    ReviewNotFound(HttpStatus.NOT_FOUND.value(), "Review not found", HttpStatus.NOT_FOUND),
+    NotificationNotFound(HttpStatus.NOT_FOUND.value(), "Notification not found", HttpStatus.NOT_FOUND),
+    FcmNotFound(HttpStatus.NOT_FOUND.value(), "FCM token is invalid or not found", HttpStatus.NOT_FOUND),
     BookingPartnerNotFound(HttpStatus.NO_CONTENT.value(), "Booking partner not found", HttpStatus.NOT_FOUND)
     ;
 

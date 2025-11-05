@@ -23,7 +23,7 @@ public class CustomerController {
 
     @GetMapping("/{customerId}/address")
     public ApiResponse<List<AddressResponse>> getAllByCustomer(@PathVariable Long customerId) {
-        List<AddressResponse> responses = addressService.getAllByCustomer(customerId);
+        List<AddressResponse> responses = addressService.getAllByCurrentUser(customerId);
         return ApiResponse.<List<AddressResponse>>builder()
                 .result(responses)
                 .build();
