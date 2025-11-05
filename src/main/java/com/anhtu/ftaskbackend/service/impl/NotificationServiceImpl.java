@@ -1,9 +1,11 @@
 package com.anhtu.ftaskbackend.service.impl;
 
+import com.anhtu.ftaskbackend.dto.response.notification.NotificationResponse;
 import com.anhtu.ftaskbackend.entity.*;
 import com.anhtu.ftaskbackend.enums.NotificationType;
 import com.anhtu.ftaskbackend.exception.AppException;
 import com.anhtu.ftaskbackend.exception.ErrorCode;
+import com.anhtu.ftaskbackend.mapper.NotificationMapper;
 import com.anhtu.ftaskbackend.repository.*;
 import com.anhtu.ftaskbackend.service.NotificationService;
 import com.anhtu.ftaskbackend.thirdParty.FCMService;
@@ -25,6 +27,7 @@ public class NotificationServiceImpl implements NotificationService {
     private final UserRepository userRepository;
     private final PartnerRepository partnerRepository;
     private final FCMService fcmService;
+    private final NotificationMapper notificationMapper;
 
     @Override
     public void sendBookingCreatedNotification(Booking booking) {
@@ -131,8 +134,11 @@ public class NotificationServiceImpl implements NotificationService {
     }
 
     @Override
-    public List<Notification> getUserNotifications(Long userId) {
-        return notificationRepository.findByUserIdOrderByCreateAtDesc(userId);
+    public List<NotificationResponse> getUserNotifications(Long userId) {
+        return notificationRepository.findByUserIdOrderByCreateAtDesc(userId)
+                .stream()
+                .map(notificationMapper::toResponse)
+                .toList();
     }
 
     @Override
