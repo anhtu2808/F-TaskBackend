@@ -73,10 +73,10 @@ public class AuthServiceImpl implements AuthService {
     public LoginResponse login(LoginRequest loginRequest) {
         User user = userRepository.findByPhone(loginRequest.getPhone())
                 .orElseThrow(() -> new AppException(ErrorCode.UserNotFoundByPhone));
-        if(!passwordEncoder.matches(loginRequest.getPassword(), user.getPassword())) {
+        if (!passwordEncoder.matches(loginRequest.getPassword(), user.getPassword())) {
             throw new AppException(ErrorCode.WrongPassword);
         }
-        if(!user.getIsActive()){
+        if (!user.getIsActive()) {
             throw new AppException(ErrorCode.UNAUTHORIZED);
         }
         return LoginResponse.builder()
@@ -91,16 +91,16 @@ public class AuthServiceImpl implements AuthService {
 //                .orElseThrow(() -> new AppException(ErrorCode.UserNotFoundByPhone))
 //        )
 //            throw new AppException(ErrorCode.UserNotMatch);
-        if(!request.getOtp().equals("123456"))
+        if (!request.getOtp().equals("123456"))
             throw new AppException(ErrorCode.OtpIsInvalid);
         boolean isNewUser = true;
         User user = userRepository.findByPhone(request.getPhone()).orElse(null);
-        if(user != null){
+        if (user != null) {
             isNewUser = false;
             user.setIsActive(true);
             userRepository.save(user);
         }
-        if(isNewUser){
+        if (isNewUser) {
             user = User.builder()
                     .phone(request.getPhone())
                     .password(passwordEncoder.encode(request.getPhone()))  //password bây giờ là sđt để tránh lỗi
@@ -109,6 +109,16 @@ public class AuthServiceImpl implements AuthService {
             user.setRole(roleRepository.findByName(request.getRole())
                     .orElseThrow(() -> new AppException(ErrorCode.RoleNotFoundByName)));
             userRepository.save(user);
+            switch (request.getRole()) {
+                case "CUSTOMER" -> customerRepository.save(Customer.builder()
+                        .user(user)
+                        .build());
+                case "PARTNER" -> partnerRepository.save(Partner.builder()
+                        .user(user)
+                        .isAvailable(true)
+//                            .districtIdsJson()
+                        .build());
+            }
         }
         return LoginResponse.builder()
                 .accessToken(generateToken(user))

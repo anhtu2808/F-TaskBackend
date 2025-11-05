@@ -49,18 +49,6 @@ public class UserServiceImpl implements UserService {
                 .orElseThrow(() -> new AppException(ErrorCode.UserNotFound));
         userMapper.updateInfoToUser(request, user);
         userRepository.save(user);
-        switch (user.getRole().getName()){
-            case "CUSTOMER" ->
-                    customerRepository.save(Customer.builder()
-                            .user(user)
-                            .build());
-            case "PARTNER" ->
-                    partnerRepository.save(Partner.builder()
-                            .user(user)
-                            .isAvailable(true)
-//                            .districtIdsJson()
-                            .build());
-        }
         return userMapper.toUserResponse(user);
     }
 }
