@@ -50,3 +50,8 @@ firebase:
   client-id: ${FIREBASE_CLIENT_ID}
 
 
+vnpay:
+  code: ${VNPAY_CODE}
+  hash_secret: ${VNPAY_HASH_SECRET}
+  url: ${VNPAY_URL}
+  return: ${VNPAY_RETURN}

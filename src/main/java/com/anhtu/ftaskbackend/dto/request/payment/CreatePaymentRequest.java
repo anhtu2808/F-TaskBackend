@@ -1,6 +1,8 @@
-package com.anhtu.ftaskbackend.dto.request.booking;
+package com.anhtu.ftaskbackend.dto.request.payment;
 
+import com.anhtu.ftaskbackend.dto.response.booking.BookingResponse;
 import com.anhtu.ftaskbackend.enums.PaymentMethod;
+import com.anhtu.ftaskbackend.enums.PaymentStatus;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
@@ -12,12 +14,11 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class CreateBookingRequest {
+public class CreatePaymentRequest {
 
-    Long variantId;
-    Long addressId;
-    LocalDateTime startAt;
-    String customerNote;
+    Double amount;
     PaymentMethod method;
+    PaymentStatus status;
+    Long bookingId;
 
 }

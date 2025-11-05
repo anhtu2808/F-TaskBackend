@@ -1,7 +1,7 @@
 package com.anhtu.ftaskbackend.service;
 
+import com.anhtu.ftaskbackend.dto.response.notification.NotificationResponse;
 import com.anhtu.ftaskbackend.entity.Booking;
-import com.anhtu.ftaskbackend.entity.Notification;
 import com.anhtu.ftaskbackend.entity.Review;
 
 import java.util.List;
@@ -41,7 +41,7 @@ public interface NotificationService {
     /**
      * Lấy danh sách notification của user
      */
-    List<Notification> getUserNotifications(Long userId);
+    List<NotificationResponse> getUserNotifications(Long userId);
 
     /**
      * Đánh dấu notification đã đọc

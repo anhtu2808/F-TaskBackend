@@ -4,15 +4,11 @@ import com.anhtu.ftaskbackend.dto.request.auth.LoginRequest;
 import com.anhtu.ftaskbackend.dto.request.auth.RegisterRequest;
 import com.anhtu.ftaskbackend.dto.request.auth.VerifyOtpRequest;
 import com.anhtu.ftaskbackend.dto.response.auth.LoginResponse;
-import com.anhtu.ftaskbackend.entity.Permission;
-import com.anhtu.ftaskbackend.entity.User;
+import com.anhtu.ftaskbackend.entity.*;
 import com.anhtu.ftaskbackend.exception.AppException;
 import com.anhtu.ftaskbackend.exception.ErrorCode;
 import com.anhtu.ftaskbackend.mapper.UserMapper;
-import com.anhtu.ftaskbackend.repository.CustomerRepository;
-import com.anhtu.ftaskbackend.repository.PartnerRepository;
-import com.anhtu.ftaskbackend.repository.RoleRepository;
-import com.anhtu.ftaskbackend.repository.UserRepository;
+import com.anhtu.ftaskbackend.repository.*;
 import com.anhtu.ftaskbackend.service.AuthService;
 import com.anhtu.ftaskbackend.service.OtpService;
 import com.nimbusds.jose.*;
@@ -51,6 +47,8 @@ public class AuthServiceImpl implements AuthService {
     CustomerRepository customerRepository;
     @Autowired
     PartnerRepository partnerRepository;
+    @Autowired
+    WalletRepository walletRepository;
 
     @Override
     public void register(RegisterRequest request) {
@@ -100,10 +98,21 @@ public class AuthServiceImpl implements AuthService {
             user = User.builder()
                     .phone(request.getPhone())
                     .password(passwordEncoder.encode(request.getPhone()))  //password bây giờ là sđt để tránh lỗi
+                    .wallet(walletRepository.save(new Wallet()))
                     .build();
             user.setRole(roleRepository.findByName(request.getRole())
                     .orElseThrow(() -> new AppException(ErrorCode.RoleNotFoundByName)));
             userRepository.save(user);
+            switch (request.getRole()) {
+                case "CUSTOMER" -> customerRepository.save(Customer.builder()
+                        .user(user)
+                        .build());
+                case "PARTNER" -> partnerRepository.save(Partner.builder()
+                        .user(user)
+                        .isAvailable(true)
+//                            .districtIdsJson()
+                        .build());
+            }
         }
         return LoginResponse.builder()
                 .accessToken(generateToken(user))

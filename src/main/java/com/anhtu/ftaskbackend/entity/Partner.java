@@ -47,8 +47,4 @@ public class Partner extends AbstractAuditingEntity {
     @Builder.Default
     List<String> districts = new ArrayList<>();
 
-    @OneToOne
-    @JoinColumn(name = "wallet_id", referencedColumnName = "id", nullable = false)
-    Wallet wallet;
-
 }

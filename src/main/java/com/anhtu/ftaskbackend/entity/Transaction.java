@@ -24,12 +24,12 @@ public class Transaction extends AbstractAuditingEntity {
     Long id;
 
     @ManyToOne
-    @JoinColumn(name = "wallet_id", referencedColumnName = "id", nullable = false)
-    Wallet wallet;
+    @JoinColumn(name = "booking_partner_id", referencedColumnName = "id")
+    BookingPartner bookingPartner;
 
     @ManyToOne
-    @JoinColumn(name = "booking_partner_id", referencedColumnName = "id", nullable = false)
-    BookingPartner bookingPartner;
+    @JoinColumn(name = "user_id", referencedColumnName = "id", nullable = false)
+    User user;
 
     @Enumerated(EnumType.STRING)
     TransactionType type;

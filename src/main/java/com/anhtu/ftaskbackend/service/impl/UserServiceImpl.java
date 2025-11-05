@@ -6,12 +6,14 @@ import com.anhtu.ftaskbackend.dto.response.user.UserResponse;
 import com.anhtu.ftaskbackend.entity.Customer;
 import com.anhtu.ftaskbackend.entity.Partner;
 import com.anhtu.ftaskbackend.entity.User;
+import com.anhtu.ftaskbackend.entity.Wallet;
 import com.anhtu.ftaskbackend.exception.AppException;
 import com.anhtu.ftaskbackend.exception.ErrorCode;
 import com.anhtu.ftaskbackend.mapper.UserMapper;
 import com.anhtu.ftaskbackend.repository.CustomerRepository;
 import com.anhtu.ftaskbackend.repository.PartnerRepository;
 import com.anhtu.ftaskbackend.repository.UserRepository;
+import com.anhtu.ftaskbackend.repository.WalletRepository;
 import com.anhtu.ftaskbackend.service.UserService;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -30,6 +32,7 @@ public class UserServiceImpl implements UserService {
     CustomerRepository customerRepository;
     PartnerRepository partnerRepository;
     UserMapper userMapper;
+    WalletRepository walletRepository;
 
     @Override
     public UserInfoResponse getCurrentUser(Long userId) {
@@ -44,16 +47,6 @@ public class UserServiceImpl implements UserService {
                 .orElseThrow(() -> new AppException(ErrorCode.UserNotFound));
         userMapper.updateInfoToUser(request, user);
         userRepository.save(user);
-        switch (user.getRole().getName()){
-            case "CUSTOMER" -> customerRepository.save(Customer.builder()
-                    .user(user)
-                    .build());
-            case "PARTNER" -> partnerRepository.save(Partner.builder()
-                    .user(user)
-                    .isAvailable(true)
-//                            .districtIdsJson()
-                    .build());
-        }
         return userMapper.toUserResponse(user);
     }
 }

@@ -1,22 +1,22 @@
 package com.anhtu.ftaskbackend.service.impl;
 
+import com.anhtu.ftaskbackend.dto.request.booking.CancelBookingRequest;
 import com.anhtu.ftaskbackend.dto.request.booking.CreateBookingRequest;
 import com.anhtu.ftaskbackend.dto.request.booking.FilterBooking;
+import com.anhtu.ftaskbackend.dto.request.transaction.CreateTransactionRequest;
 import com.anhtu.ftaskbackend.dto.response.booking.BookingResponse;
-import com.anhtu.ftaskbackend.entity.Address;
-import com.anhtu.ftaskbackend.entity.Booking;
-import com.anhtu.ftaskbackend.entity.Customer;
-import com.anhtu.ftaskbackend.entity.ServiceCatalogVariant;
+import com.anhtu.ftaskbackend.entity.*;
+import com.anhtu.ftaskbackend.enums.BookingStatus;
+import com.anhtu.ftaskbackend.enums.PaymentStatus;
+import com.anhtu.ftaskbackend.enums.TransactionType;
 import com.anhtu.ftaskbackend.exception.AppException;
 import com.anhtu.ftaskbackend.exception.ErrorCode;
 import com.anhtu.ftaskbackend.helper.JWTHelper;
 import com.anhtu.ftaskbackend.mapper.BookingMapper;
-import com.anhtu.ftaskbackend.repository.AddressRepository;
-import com.anhtu.ftaskbackend.repository.BookingRepository;
-import com.anhtu.ftaskbackend.repository.CustomerRepository;
-import com.anhtu.ftaskbackend.repository.ServiceCatalogVariantRepository;
+import com.anhtu.ftaskbackend.repository.*;
 import com.anhtu.ftaskbackend.repository.specification.BookingSpecification;
 import com.anhtu.ftaskbackend.service.BookingService;
+import com.anhtu.ftaskbackend.service.TransactionService;
 import lombok.AccessLevel;
 import lombok.experimental.FieldDefaults;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,6 +25,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.Map;
 
 @Service
 @FieldDefaults(level = AccessLevel.PRIVATE)
@@ -40,6 +41,11 @@ public class BookingServiceImpl implements BookingService {
     CustomerRepository customerRepository;
     @Autowired
     BookingMapper bookingMapper;
+    @Autowired
+    PaymentRepository paymentRepository;
+    @Autowired
+    TransactionService transactionService;
+
 
     @Override
     public BookingResponse createBooking(CreateBookingRequest request) {
@@ -66,6 +72,12 @@ public class BookingServiceImpl implements BookingService {
                 .customerNote(request.getCustomerNote())
                 .build();
         bookingRepository.save(booking);
+        paymentRepository.save(Payment.builder()
+                .amount(booking.getTotalPrice())
+                .method(request.getMethod())
+                .status(PaymentStatus.PENDING)
+                .booking(booking)
+                .build());
         return bookingMapper.toBookingResponse(booking);
     }
 
@@ -82,5 +94,21 @@ public class BookingServiceImpl implements BookingService {
         Booking booking = bookingRepository.findById(id)
                 .orElseThrow(() -> new AppException(ErrorCode.BookingNotFound));
         return bookingMapper.toBookingResponse(booking);
+    }
+
+    @Override
+    public void cancelBooking(Long id, CancelBookingRequest request) {
+        Booking booking = bookingRepository.findById(id)
+                .orElseThrow(() -> new AppException(ErrorCode.BookingNotFound));
+        booking.setStatus(BookingStatus.CANCELLED);
+        booking.setCancelReason(request.getReason());
+        bookingRepository.save(booking);
+        if(!booking.getStartAt().isBefore(LocalDateTime.now().plusHours(4))){
+            transactionService.createTransaction(CreateTransactionRequest.builder()
+                    .type(TransactionType.FINE)
+                    .amount(booking.getTotalPrice() * 0.2)
+                    .description("Tiền phạt vì huỷ booking sau 4 tiếng!")
+                    .build());
+        }
     }
 }
