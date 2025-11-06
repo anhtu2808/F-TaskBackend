@@ -13,6 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
+import io.swagger.v3.oas.annotations.Operation;
 
 import java.util.Map;
 
@@ -56,6 +57,7 @@ public class BookingController {
 
     @PutMapping("/{id}")
     @ResponseStatus(HttpStatus.OK)
+    @Operation(summary = "Cancel booking (customer only)", description = "Cancel ≥ 4h before start: no penalty. Cancel < 4h: 30% penalty split among claimed partners. Disallowed if any partner is working.")
     public ApiResponse<Void> cancelBooking(@PathVariable Long id, @RequestBody CancelBookingRequest request){
         bookingService.cancelBooking(id, request);
         return ApiResponse.<Void>builder()

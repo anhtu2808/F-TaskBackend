@@ -36,7 +36,7 @@ public interface NotificationService {
     /**
      * Gửi notification test
      */
-    void sendNotification(Long userId, String fcmToken);
+    void sendNotification(Long userId);
 
     /**
      * Lấy danh sách notification của user

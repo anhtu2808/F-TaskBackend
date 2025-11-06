@@ -33,6 +33,7 @@ public class PartnerController {
     }
 
     @PostMapping("/bookings/{bookingId}/cancel")
+    @Operation(summary = "Cancel booking claim (partner only)", description = "Partner cancels their claim. Cancel ≥ 4h before start: no penalty. Cancel < 4h: 30% penalty applied to partner. Disallowed if partner is already working.")
     public ApiResponse<BookingResponse> cancelBooking(@PathVariable Long bookingId) {
         Long partnerId = JWTHelper.getCurrentPartnerId();
         BookingResponse response = partnerService.cancelBooking(partnerId, bookingId);

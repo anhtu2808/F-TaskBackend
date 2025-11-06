@@ -66,9 +66,9 @@ public class NotificationController {
 
     @PostMapping("/test")
     @Operation(summary = "Test send notification")
-    public ApiResponse<Void> testNotification(@RequestParam("fcmToken") String fcmToken) {
+    public ApiResponse<Void> testNotification() {
         Long userId = JWTHelper.getCurrentUserId();
-        notificationService.sendNotification(userId, fcmToken);
+        notificationService.sendNotification(userId);
         return ApiResponse.<Void>builder()
                 .message("Test notification sent successfully")
                 .build();
