@@ -32,14 +32,4 @@ public class CustomerController {
                 .build();
     }
 
-    @GetMapping("/transactions")
-    public ApiResponse<Page<TransactionResponse>> getAllTransaction(@RequestParam(defaultValue = "1") int page , @RequestParam(defaultValue = "2") int size ) {
-        Long customerId = JWTHelper.getCurrentCustomerId();
-        return ApiResponse.<Page<TransactionResponse>>builder()
-                .code(200)
-                .message("Get all transactions")
-                .result(transactionService.getTransactionsByUserId(customerId, page, size))
-                .build();
-    }
-
 }

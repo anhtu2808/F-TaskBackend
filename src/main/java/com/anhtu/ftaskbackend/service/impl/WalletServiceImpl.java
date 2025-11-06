@@ -42,7 +42,7 @@ public class WalletServiceImpl implements WalletService {
         Double balanceBefore = wallet.getBalance();
         switch (request.getType()){
             case TOP_UP, EARNING -> wallet.setBalance(balanceBefore + request.getAmount());
-            case WITHDRAWAL, FINE, PLATFORM_FEE -> wallet.setBalance(balanceBefore - request.getAmount());
+            case WITHDRAWAL, FINE, PLATFORM_FEE, ADJUSTMENT -> wallet.setBalance(balanceBefore - request.getAmount());
         }
         Double balanceAfter = wallet.getBalance();
         walletRepository.save(wallet);
@@ -52,6 +52,7 @@ public class WalletServiceImpl implements WalletService {
                         .balanceBefore(balanceBefore)
                         .balanceAfter(balanceAfter)
                         .amount(request.getAmount())
+                        .bookingId(request.getBookingId())
                         .user(user)
                 .build());
     }

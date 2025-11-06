@@ -51,7 +51,7 @@ public class TransactionServiceImpl implements TransactionService {
                 .bookingPartner(bookingPartner)
                 .balanceBefore(request.getBalanceBefore())
                 .balanceAfter(request.getBalanceAfter())
-                .status(TransactionStatus.PENDING)
+                .status(TransactionStatus.COMPLETED)
                 .user(request.getUser())
                 .build();
         transactionRepository.save(transaction);
@@ -65,37 +65,43 @@ public class TransactionServiceImpl implements TransactionService {
             case TOP_UP -> {
                 description += " vừa nạp "
                         + request.getAmount()
-                        + " VNĐ vào tài khoản. ";
+                        + " VNĐ vào tài khoản.";
             }
             case EARNING -> {
                 description += " vừa nhận được "
                         + request.getAmount()
-                        + " VNĐ vào tài khoản vì hoàn thành công việc. ";
+                        + " VNĐ vào tài khoản vì hoàn thành công việc.";
             }
             case FINE -> {
                 description += " vừa bị phạt "
                         + request.getAmount()
-                        + " VNĐ vì huỷ trong khoảng 2 tiếng trước khi công việc bắt đầu. ";
+                        + " VNĐ vì huỷ trong khoảng 2 tiếng trước khi công việc bắt đầu.";
             }
             case PLATFORM_FEE -> {
                 description += " vừa bị thu phí phần mềm"
                         + request.getAmount()
-                        + " VNĐ. ";
+                        + " VNĐ.";
             }
             case WITHDRAWAL -> {
                 description += " vừa rút "
                         + request.getAmount()
-                        + " VNĐ. ";
+                        + " VNĐ.";
+            }
+            case ADJUSTMENT -> {
+                description += " vừa thanh toán "
+                        + request.getAmount()
+                        + " VNĐ cho booking "
+                        + request.getBookingId() + ".";
             }
         }
-        description += "Số dư hiện tại: " + request.getBalanceAfter();
+        description += " Số dư hiện tại: " + request.getBalanceAfter();
         return description;
     }
 
     @Override
     public Page<TransactionResponse> getTransactionsByUserId(Long userId, int page, int size) {
         var pageable = PageRequest.of(page - 1, size);
-        Page<Transaction> transactions = transactionRepository.findAll(pageable);
+        Page<Transaction> transactions = transactionRepository.findTransactionByUser_Id(userId, pageable);
         return transactions.map(transaction -> transactionMapper.toTransactionResponse(transaction));
     }
 

@@ -16,5 +16,6 @@ public class AdjustWalletBalanceRequest {
     TransactionType type;
     Double amount;
     Long bookingPartnerId;
+    Long bookingId;
 
 }
