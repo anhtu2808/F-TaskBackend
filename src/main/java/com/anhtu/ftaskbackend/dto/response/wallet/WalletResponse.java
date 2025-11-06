@@ -2,6 +2,7 @@ package com.anhtu.ftaskbackend.dto.response.wallet;
 
 import com.anhtu.ftaskbackend.dto.response.partner.PartnerInfoInWalletResponse;
 import com.anhtu.ftaskbackend.dto.response.partner.PartnerResponse;
+import com.anhtu.ftaskbackend.dto.response.user.UserResponse;
 import com.anhtu.ftaskbackend.entity.User;
 import jakarta.persistence.*;
 import lombok.*;
@@ -19,7 +20,7 @@ public class WalletResponse {
     Double balance;
     Double totalEarned;
     Double totalWithdrawn;
-    PartnerInfoInWalletResponse partner;
+    UserResponse user;
 
 
 }

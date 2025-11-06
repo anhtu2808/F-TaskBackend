@@ -142,6 +142,12 @@ public class BookingServiceImpl implements BookingService {
         booking.setStatus(BookingStatus.CANCELLED);
         booking.setCancelReason(request.getReason());
         bookingRepository.save(booking);
+        if(!booking.getStartAt().isBefore(LocalDateTime.now().plusHours(4))){
+            transactionService.createTransaction(CreateTransactionRequest.builder()
+                    .type(TransactionType.FINE)
+                    .amount(booking.getTotalPrice() * 0.3)
+                    .build());
+        }
 
         // Notifications
         notificationService.sendBookingCancelledNotification(booking, request.getReason());

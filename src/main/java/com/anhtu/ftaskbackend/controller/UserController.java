@@ -4,8 +4,10 @@ import com.anhtu.ftaskbackend.common.ApiResponse;
 import com.anhtu.ftaskbackend.dto.request.auth.UpdateUserInfoRequest;
 import com.anhtu.ftaskbackend.dto.response.user.UserInfoResponse;
 import com.anhtu.ftaskbackend.dto.response.user.UserResponse;
+import com.anhtu.ftaskbackend.dto.response.wallet.WalletResponse;
 import com.anhtu.ftaskbackend.helper.JWTHelper;
 import com.anhtu.ftaskbackend.service.UserService;
+import com.anhtu.ftaskbackend.service.WalletService;
 import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -19,6 +21,7 @@ import static lombok.AccessLevel.PRIVATE;
 @FieldDefaults(level = PRIVATE, makeFinal = true)
 public class UserController {
     UserService userService;
+    WalletService walletService;
 
     @GetMapping("/me")
     @Operation(summary = "Get current user's info (both partner & user can use)")
@@ -42,6 +45,14 @@ public class UserController {
                 .code(200)
                 .message("Update information success")
                 .result(userService.updateInfo(userId, request))
+                .build();
+    }
+
+    @GetMapping("/wallet")
+    public ApiResponse<WalletResponse> getWallet() {
+        Long userId = JWTHelper.getCurrentUserId();
+        return ApiResponse.<WalletResponse>builder()
+                .result(walletService.getMyWallet(userId))
                 .build();
     }
 }
