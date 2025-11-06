@@ -197,6 +197,10 @@ public class PartnerServiceImpl implements PartnerService {
             return;
         }
 
+        if (status == BookingStatus.IN_PROGRESS) {
+            return;
+        }
+
         throw new AppException(ErrorCode.InvalidBookingStastusForStart);
     }
 }
