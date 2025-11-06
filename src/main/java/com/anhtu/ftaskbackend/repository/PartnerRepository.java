@@ -6,6 +6,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface PartnerRepository extends JpaRepository<Partner, Long> {
     
@@ -14,4 +15,7 @@ public interface PartnerRepository extends JpaRepository<Partner, Long> {
            "OR LOWER(:district) LIKE LOWER(CONCAT('%', d, '%'))) " +
            "AND p.isAvailable = true")
     List<Partner> findAvailablePartnersByDistrict(@Param("district") String district);
+
+    Optional<Partner> findByUser_Id(Long id);
+
 }
