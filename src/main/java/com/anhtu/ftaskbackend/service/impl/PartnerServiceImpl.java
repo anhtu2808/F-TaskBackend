@@ -18,6 +18,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import org.springframework.stereotype.Service;
 
+import java.time.Duration;
+import java.time.LocalDateTime;
 import java.util.Arrays;
 
 import static lombok.AccessLevel.PRIVATE;
@@ -89,9 +91,26 @@ public class PartnerServiceImpl implements PartnerService {
                 .findByPartnerAndBooking(partner, booking)
                 .orElseThrow(() -> new AppException(ErrorCode.BookingClaimNotFound));
 
+        // Idempotency: if already cancelled, no-op
+        if (bookingPartner.getStatus() == BookingPartnerStatus.CANCELLED) {
+            return bookingMapper.toBookingResponse(booking);
+        }
+
+        // Disallow cancel if partner has started working
+        if (bookingPartner.getStatus() == BookingPartnerStatus.WORKING) {
+            throw new AppException(ErrorCode.PartnerNotInWorkingStatus);
+        }
+
+        // Compute penalty: 30% of booking total if within 4 hours to start
+        LocalDateTime now = LocalDateTime.now();
+        long hoursUntilStart = Duration.between(now, booking.getStartAt()).toHours();
+        double penalty = hoursUntilStart < 4 ? booking.getTotalPrice() * 0.30 : 0.0;
+
+        // Persist cancellation
         bookingPartner.setStatus(BookingPartnerStatus.CANCELLED);
         bookingPartnerRepository.save(bookingPartner);
 
+        // Update booking status based on remaining active partners
         long activePartners = bookingPartnerRepository.countByBookingAndStatus(
                 booking,
                 BookingPartnerStatus.JOINED
@@ -105,6 +124,18 @@ public class PartnerServiceImpl implements PartnerService {
             booking.setStatus(BookingStatus.PARTIALLY_ACCEPTED);
         }
         booking = bookingRepository.save(booking);
+
+        // TODO: Transaction integration points
+        // - Deduct 'penalty' from partner's wallet if penalty > 0
+        // - Example placeholder (disabled):
+        // if (penalty > 0) {
+        //     transactionService.createTransaction(CreateTransactionRequest.builder()
+        //             .type(TransactionType.FINE)
+        //             .amount(penalty)
+        //             .bookingPartnerId(bookingPartner.getId())
+        //             .description("Penalty for late cancellation (<4h before start)")
+        //             .build());
+        // }
 
         return bookingMapper.toBookingResponse(booking);
     }

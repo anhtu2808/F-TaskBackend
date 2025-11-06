@@ -7,6 +7,7 @@ import com.anhtu.ftaskbackend.dto.request.transaction.CreateTransactionRequest;
 import com.anhtu.ftaskbackend.dto.response.booking.BookingResponse;
 import com.anhtu.ftaskbackend.entity.*;
 import com.anhtu.ftaskbackend.enums.BookingStatus;
+import com.anhtu.ftaskbackend.enums.BookingPartnerStatus;
 import com.anhtu.ftaskbackend.enums.PaymentStatus;
 import com.anhtu.ftaskbackend.enums.TransactionType;
 import com.anhtu.ftaskbackend.exception.AppException;
@@ -17,6 +18,7 @@ import com.anhtu.ftaskbackend.repository.*;
 import com.anhtu.ftaskbackend.repository.specification.BookingSpecification;
 import com.anhtu.ftaskbackend.service.BookingService;
 import com.anhtu.ftaskbackend.service.TransactionService;
+import com.anhtu.ftaskbackend.service.NotificationService;
 import lombok.AccessLevel;
 import lombok.experimental.FieldDefaults;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,6 +27,8 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.time.Duration;
+import java.util.List;
 import java.util.Map;
 
 @Service
@@ -45,6 +49,10 @@ public class BookingServiceImpl implements BookingService {
     PaymentRepository paymentRepository;
     @Autowired
     TransactionService transactionService;
+    @Autowired
+    NotificationService notificationService;
+    @Autowired
+    BookingPartnerRepository bookingPartnerRepository;
 
 
     @Override
@@ -98,17 +106,62 @@ public class BookingServiceImpl implements BookingService {
 
     @Override
     public void cancelBooking(Long id, CancelBookingRequest request) {
+        Long currentUserId = JWTHelper.getCurrentUserId();
         Booking booking = bookingRepository.findById(id)
                 .orElseThrow(() -> new AppException(ErrorCode.BookingNotFound));
+
+        // Idempotency: if already cancelled or completed, no-op
+        if (booking.getStatus() == BookingStatus.CANCELLED || booking.getStatus() == BookingStatus.COMPLETED) {
+            return;
+        }
+
+        // Ownership guard: only booking owner (customer) can cancel
+        Long ownerUserId = booking.getCustomer().getUser().getId();
+        if (!ownerUserId.equals(currentUserId)) {
+            throw new AppException(ErrorCode.UNAUTHORIZED);
+        }
+
+        // Disallow cancel if any partner has started working
+        long workingPartners = bookingPartnerRepository.countByBookingAndStatus(booking, BookingPartnerStatus.WORKING);
+        if (workingPartners > 0) {
+            throw new AppException(ErrorCode.BadRequest);
+        }
+
+        // Compute penalty: 30% if within 4 hours to start
+        LocalDateTime now = LocalDateTime.now();
+        long hoursUntilStart = Duration.between(now, booking.getStartAt()).toHours();
+        double penalty = hoursUntilStart < 4 ? booking.getTotalPrice() * 0.30 : 0.0;
+
+        // Determine claimed partners to split penalty
+        List<BookingPartnerStatus> eligibleStatuses = List.of(BookingPartnerStatus.JOINED, BookingPartnerStatus.WORKING);
+        List<BookingPartner> claimedPartners = bookingPartnerRepository.findByBookingAndStatusIn(booking, eligibleStatuses);
+        int partnerCount = claimedPartners.size();
+        double perPartnerShare = partnerCount > 0 ? penalty / partnerCount : 0.0;
+
+        // Persist cancellation
         booking.setStatus(BookingStatus.CANCELLED);
         booking.setCancelReason(request.getReason());
         bookingRepository.save(booking);
-        if(!booking.getStartAt().isBefore(LocalDateTime.now().plusHours(4))){
-            transactionService.createTransaction(CreateTransactionRequest.builder()
-                    .type(TransactionType.FINE)
-                    .amount(booking.getTotalPrice() * 0.2)
-                    .description("Tiền phạt vì huỷ booking sau 4 tiếng!")
-                    .build());
-        }
+
+        // Notifications
+        notificationService.sendBookingCancelledNotification(booking, request.getReason());
+
+        // TODO: Transactions integration points
+        // - Deduct 'penalty' from customer wallet
+        // - Credit 'perPartnerShare' to each partner's wallet
+        // - Optional: refund remaining amount to customer if pre-paid policy applies
+
+        // Example placeholders (disabled):
+        // transactionService.createTransaction(CreateTransactionRequest.builder()
+        //         .type(TransactionType.FINE)
+        //         .amount(penalty)
+        //         .description("Penalty for late cancellation (<4h)")
+        //         .build());
+        // claimedPartners.forEach(bp -> transactionService.createTransaction(CreateTransactionRequest.builder()
+        //         .type(TransactionType.EARNING)
+        //         .amount(perPartnerShare)
+        //         .bookingPartnerId(bp.getId())
+        //         .description("Share from cancellation penalty")
+        //         .build()));
     }
 }
