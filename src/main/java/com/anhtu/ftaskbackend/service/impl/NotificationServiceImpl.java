@@ -106,9 +106,15 @@ public class NotificationServiceImpl implements NotificationService {
     }
 
     @Override
-    public void sendNotification(Long userId, String fcmToken) {
+    public void sendNotification(Long userId) {
         User user = userRepository.findById(userId)
                                   .orElseThrow(() -> new AppException(ErrorCode.UserNotFound));
+
+        String fcmToken = user.getFcmToken();
+        if (fcmToken == null || fcmToken.isEmpty()) {
+            log.warn("User {} has no FCM token, skipping test notification", userId);
+            return;
+        }
 
         Notification notification = Notification.builder()
                 .user(user)
