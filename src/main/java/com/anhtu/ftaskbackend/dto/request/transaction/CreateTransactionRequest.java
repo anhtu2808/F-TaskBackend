@@ -17,8 +17,10 @@ import lombok.experimental.FieldDefaults;
 public class CreateTransactionRequest {
 
     TransactionType type;
+    Double balanceBefore;
+    Double balanceAfter;
     Double amount;
-    String description;
+    User user;
     Long bookingPartnerId;
 
 }

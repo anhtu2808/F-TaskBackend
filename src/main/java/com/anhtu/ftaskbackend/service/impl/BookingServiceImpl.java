@@ -106,8 +106,7 @@ public class BookingServiceImpl implements BookingService {
         if(!booking.getStartAt().isBefore(LocalDateTime.now().plusHours(4))){
             transactionService.createTransaction(CreateTransactionRequest.builder()
                     .type(TransactionType.FINE)
-                    .amount(booking.getTotalPrice() * 0.2)
-                    .description("Tiền phạt vì huỷ booking sau 4 tiếng!")
+                    .amount(booking.getTotalPrice() * 0.3)
                     .build());
         }
     }

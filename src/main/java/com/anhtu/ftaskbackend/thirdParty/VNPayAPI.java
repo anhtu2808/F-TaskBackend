@@ -1,5 +1,6 @@
 package com.anhtu.ftaskbackend.thirdParty;
 
+import com.anhtu.ftaskbackend.dto.request.Wallet.AdjustWalletBalanceRequest;
 import com.anhtu.ftaskbackend.dto.request.transaction.TransactionParam;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
@@ -24,7 +25,7 @@ public class VNPayAPI {
     @Value("${vnpay.return}")
     private String returnUrl;
 
-    public Map<String, Object> createPayment(TransactionParam param, String info, String type) {
+    public Map<String, Object> createPayment(Double amount, String info, String type) {
         try {
             String vnp_Version = "2.1.0";
             String vnp_Command = "pay";
@@ -36,8 +37,8 @@ public class VNPayAPI {
             vnp_Params.put("vnp_Command", vnp_Command);
             vnp_Params.put("vnp_TmnCode", tmnCode);
 
-            long amount = Math.round(param.getAmount() * 100);
-            vnp_Params.put("vnp_Amount", String.valueOf(amount));
+            long amountInVND = Math.round(amount * 100);
+            vnp_Params.put("vnp_Amount", String.valueOf(amountInVND));
             vnp_Params.put("vnp_CurrCode", "VND");
             vnp_Params.put("vnp_TxnRef", vnp_TxnRef);
             vnp_Params.put("vnp_OrderInfo", info);

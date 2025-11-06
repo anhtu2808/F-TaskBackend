@@ -18,8 +18,10 @@ import com.anhtu.ftaskbackend.service.TransactionService;
 import lombok.AccessLevel;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
+import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
@@ -33,45 +35,68 @@ public class TransactionServiceImpl implements TransactionService {
     @Autowired
     BookingPartnerRepository bookingPartnerRepository;
     @Autowired
-    UserRepository userRepository;
-    @Autowired
-    WalletRepository walletRepository;
-    @Autowired
     TransactionMapper transactionMapper;
 
     @Override
     public Long createTransaction(CreateTransactionRequest request) {
-        Long userId = JWTHelper.getCurrentUserId();
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new AppException(ErrorCode.UserNotFound));
-        Wallet wallet = user.getWallet();
-        TransactionType type = request.getType();
         BookingPartner bookingPartner = request.getBookingPartnerId() != null
                 ? bookingPartnerRepository.findById(request.getBookingPartnerId())
                         .orElseThrow(() -> new AppException(ErrorCode.BookingPartnerNotFound))
                 : null;
+        String description = getDescription(request);
         Transaction transaction = Transaction.builder()
                 .amount(request.getAmount())
-                .type(type)
-                .description(request.getDescription())
+                .type(request.getType())
+                .description(description)
                 .bookingPartner(bookingPartner)
-                .balanceBefore(wallet.getBalance())
+                .balanceBefore(request.getBalanceBefore())
+                .balanceAfter(request.getBalanceAfter())
                 .status(TransactionStatus.PENDING)
-                .user(user)
+                .user(request.getUser())
                 .build();
-        switch (type) {
-            case WITHDRAWAL, FINE -> wallet.setBalance(wallet.getBalance() - request.getAmount());
-            case TOP_UP, EARNING -> wallet.setBalance(wallet.getBalance() + request.getAmount());
-        }
-        transaction.setBalanceAfter(wallet.getBalance());
         transactionRepository.save(transaction);
-        walletRepository.save(wallet);
         return transaction.getId();
+    }
+
+    @NotNull
+    private String getDescription(CreateTransactionRequest request) {
+        String description = "User: " + request.getUser().getId();
+        switch (request.getType()) {
+            case TOP_UP -> {
+                description += " vừa nạp "
+                        + request.getAmount()
+                        + " VNĐ vào tài khoản. ";
+            }
+            case EARNING -> {
+                description += " vừa nhận được "
+                        + request.getAmount()
+                        + " VNĐ vào tài khoản vì hoàn thành công việc. ";
+            }
+            case FINE -> {
+                description += " vừa bị phạt "
+                        + request.getAmount()
+                        + " VNĐ vì huỷ trong khoảng 2 tiếng trước khi công việc bắt đầu. ";
+            }
+            case PLATFORM_FEE -> {
+                description += " vừa bị thu phí phần mềm"
+                        + request.getAmount()
+                        + " VNĐ. ";
+            }
+            case WITHDRAWAL -> {
+                description += " vừa rút "
+                        + request.getAmount()
+                        + " VNĐ. ";
+            }
+        }
+        description += "Số dư hiện tại: " + request.getBalanceAfter();
+        return description;
     }
 
     @Override
     public Page<TransactionResponse> getTransactionsByUserId(Long userId, int page, int size) {
-        return null;
+        var pageable = PageRequest.of(page - 1, size);
+        Page<Transaction> transactions = transactionRepository.findAll(pageable);
+        return transactions.map(transaction -> transactionMapper.toTransactionResponse(transaction));
     }
 
     @Override

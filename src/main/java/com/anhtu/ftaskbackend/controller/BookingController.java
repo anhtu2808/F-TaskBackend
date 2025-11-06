@@ -64,4 +64,7 @@ public class BookingController {
                 .build();
     }
 
+//    @PostMapping("/{id}/pay-for-booking")
+//    public ApiResponse<>
+
 }

@@ -27,33 +27,5 @@ public class TransactionController {
     @Autowired
     TransactionService transactionService;
 
-    @PostMapping("/top-up")
-    public ApiResponse<Map<String, Object>> topUp(@ParameterObject TransactionParam param) {
-        String info = "User_" + JWTHelper.getCurrentUserId() + "_recharge_" + param.getAmount() + "_VND_";
-        Long id = transactionService.createTransaction(CreateTransactionRequest.builder()
-                        .description(info)
-                        .amount(param.getAmount())
-                        .type(TransactionType.TOP_UP)
-                        .build());
-        info = "_TOPUP_" + info + "Transaction_Code" + id;
-        return ApiResponse.<Map<String, Object>>builder()
-                .message("Top up transaction successful")
-                .result(vnPayAPI.createPayment(param, info, TransactionType.TOP_UP.toString()))
-                .build();
-    }
 
-    @PostMapping("/withdrawal")
-    public ApiResponse<Map<String, Object>> withdrawal(@ParameterObject TransactionParam param) {
-        String info = "User_" +JWTHelper.getCurrentUserId() + "_withdraw_" + param.getAmount() + "_VND_";
-        Long id = transactionService.createTransaction(CreateTransactionRequest.builder()
-                .description("info")
-                .amount(param.getAmount())
-                .type(TransactionType.WITHDRAWAL)
-                .build());
-        info = "_WITHDRAWAL_" + info + "Transaction_Code" + id;
-        return ApiResponse.<Map<String, Object>>builder()
-                .message("Withdrawal transaction successful")
-                .result(vnPayAPI.createPayment(param, info, TransactionType.WITHDRAWAL.toString()))
-                .build();
-    }
 }
