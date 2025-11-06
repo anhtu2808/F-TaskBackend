@@ -2,15 +2,18 @@ package com.anhtu.ftaskbackend.controller;
 
 import com.anhtu.ftaskbackend.common.ApiResponse;
 import com.anhtu.ftaskbackend.dto.request.auth.UpdateUserInfoRequest;
+import com.anhtu.ftaskbackend.dto.response.transaction.TransactionResponse;
 import com.anhtu.ftaskbackend.dto.response.user.UserInfoResponse;
 import com.anhtu.ftaskbackend.dto.response.user.UserResponse;
 import com.anhtu.ftaskbackend.dto.response.wallet.WalletResponse;
 import com.anhtu.ftaskbackend.helper.JWTHelper;
+import com.anhtu.ftaskbackend.service.TransactionService;
 import com.anhtu.ftaskbackend.service.UserService;
 import com.anhtu.ftaskbackend.service.WalletService;
 import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
+import org.springframework.data.domain.Page;
 import org.springframework.web.bind.annotation.*;
 
 import static lombok.AccessLevel.PRIVATE;
@@ -22,6 +25,7 @@ import static lombok.AccessLevel.PRIVATE;
 public class UserController {
     UserService userService;
     WalletService walletService;
+    TransactionService transactionService;
 
     @GetMapping("/me")
     @Operation(summary = "Get current user's info (both partner & user can use)")
@@ -53,6 +57,16 @@ public class UserController {
         Long userId = JWTHelper.getCurrentUserId();
         return ApiResponse.<WalletResponse>builder()
                 .result(walletService.getMyWallet(userId))
+                .build();
+    }
+
+    @GetMapping("/transactions")
+    public ApiResponse<Page<TransactionResponse>> getAllTransaction(@RequestParam(defaultValue = "1") int page , @RequestParam(defaultValue = "2") int size ) {
+        Long userId = JWTHelper.getCurrentUserId();
+        return ApiResponse.<Page<TransactionResponse>>builder()
+                .code(200)
+                .message("Get all transactions")
+                .result(transactionService.getTransactionsByUserId(userId, page, size))
                 .build();
     }
 }

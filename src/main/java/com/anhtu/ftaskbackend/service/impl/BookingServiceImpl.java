@@ -1,15 +1,13 @@
 package com.anhtu.ftaskbackend.service.impl;
 
+import com.anhtu.ftaskbackend.dto.request.Wallet.AdjustWalletBalanceRequest;
 import com.anhtu.ftaskbackend.dto.request.booking.CancelBookingRequest;
 import com.anhtu.ftaskbackend.dto.request.booking.CreateBookingRequest;
 import com.anhtu.ftaskbackend.dto.request.booking.FilterBooking;
 import com.anhtu.ftaskbackend.dto.request.transaction.CreateTransactionRequest;
 import com.anhtu.ftaskbackend.dto.response.booking.BookingResponse;
 import com.anhtu.ftaskbackend.entity.*;
-import com.anhtu.ftaskbackend.enums.BookingStatus;
-import com.anhtu.ftaskbackend.enums.BookingPartnerStatus;
-import com.anhtu.ftaskbackend.enums.PaymentStatus;
-import com.anhtu.ftaskbackend.enums.TransactionType;
+import com.anhtu.ftaskbackend.enums.*;
 import com.anhtu.ftaskbackend.exception.AppException;
 import com.anhtu.ftaskbackend.exception.ErrorCode;
 import com.anhtu.ftaskbackend.helper.JWTHelper;
@@ -19,6 +17,7 @@ import com.anhtu.ftaskbackend.repository.specification.BookingSpecification;
 import com.anhtu.ftaskbackend.service.BookingService;
 import com.anhtu.ftaskbackend.service.TransactionService;
 import com.anhtu.ftaskbackend.service.NotificationService;
+import com.anhtu.ftaskbackend.service.WalletService;
 import lombok.AccessLevel;
 import lombok.experimental.FieldDefaults;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -53,7 +52,8 @@ public class BookingServiceImpl implements BookingService {
     NotificationService notificationService;
     @Autowired
     BookingPartnerRepository bookingPartnerRepository;
-
+    @Autowired
+    WalletService walletService;
 
     @Override
     public BookingResponse createBooking(CreateBookingRequest request) {
@@ -66,6 +66,12 @@ public class BookingServiceImpl implements BookingService {
                 .orElseThrow(() -> new AppException(ErrorCode.ServiceVariantNotFound));
         if (request.getStartAt().isBefore(LocalDateTime.now()))
             throw new AppException(ErrorCode.BookingStartAtInvalid);
+        BookingStatus status = BookingStatus.PENDING;
+        User user = customer.getUser();
+        Wallet wallet = user.getWallet();
+        if (request.getMethod().equals(PaymentMethod.CASH) || wallet.getBalance() < variant.getPricePerVariant()) {
+            status = BookingStatus.WAITING_FOR_PAYMENT;
+        }
         double platformFeePercent = variant.getServiceCatalog().getPlatformFeePercent() / 100;
         double variantPrice = variant.getPricePerVariant();
         Booking booking = Booking.builder()
@@ -75,17 +81,27 @@ public class BookingServiceImpl implements BookingService {
                 .totalPrice(variant.getPricePerVariant())
                 .requiredPartners(variant.getNumberOfPartners())
                 .platformFee(variantPrice * platformFeePercent)
+                .status(status)
                 .startAt(request.getStartAt())
                 .completedAt(request.getStartAt().plusHours(variant.getDurationHours()))
                 .customerNote(request.getCustomerNote())
                 .build();
         bookingRepository.save(booking);
-        paymentRepository.save(Payment.builder()
+        Payment payment = Payment.builder()
                 .amount(booking.getTotalPrice())
                 .method(request.getMethod())
                 .status(PaymentStatus.PENDING)
                 .booking(booking)
-                .build());
+                .build();
+        if (booking.getStatus().equals(BookingStatus.PENDING)) {
+            walletService.adjustBalance(userId, AdjustWalletBalanceRequest.builder()
+                    .amount(booking.getTotalPrice())
+                    .type(TransactionType.ADJUSTMENT)
+                    .bookingId(booking.getId())
+                    .build());
+            payment.setStatus(PaymentStatus.SUCCESS);
+        }
+        paymentRepository.save(payment);
         return bookingMapper.toBookingResponse(booking);
     }
 
@@ -142,7 +158,7 @@ public class BookingServiceImpl implements BookingService {
         booking.setStatus(BookingStatus.CANCELLED);
         booking.setCancelReason(request.getReason());
         bookingRepository.save(booking);
-        if(!booking.getStartAt().isBefore(LocalDateTime.now().plusHours(4))){
+        if (!booking.getStartAt().isBefore(LocalDateTime.now().plusHours(4))) {
             transactionService.createTransaction(CreateTransactionRequest.builder()
                     .type(TransactionType.FINE)
                     .amount(booking.getTotalPrice() * 0.3)

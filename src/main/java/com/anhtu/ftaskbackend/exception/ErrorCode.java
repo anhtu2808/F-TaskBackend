@@ -60,7 +60,8 @@ public enum ErrorCode {
     ReviewNotFound(HttpStatus.NOT_FOUND.value(), "Review not found", HttpStatus.NOT_FOUND),
     NotificationNotFound(HttpStatus.NOT_FOUND.value(), "Notification not found", HttpStatus.NOT_FOUND),
     FcmNotFound(HttpStatus.NOT_FOUND.value(), "FCM token is invalid or not found", HttpStatus.NOT_FOUND),
-    BookingPartnerNotFound(HttpStatus.NO_CONTENT.value(), "Booking partner not found", HttpStatus.NOT_FOUND)
+    BookingPartnerNotFound(HttpStatus.NO_CONTENT.value(), "Booking partner not found", HttpStatus.NOT_FOUND),
+    PaymentNotFoundByBookingId(HttpStatus.NOT_FOUND.value(), "Payment not found with this booking id", HttpStatus.NOT_FOUND),
     ;
 
     ErrorCode(int code, String message, HttpStatusCode statusCode) {

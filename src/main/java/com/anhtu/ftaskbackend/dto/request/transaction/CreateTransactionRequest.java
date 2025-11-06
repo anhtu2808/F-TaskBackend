@@ -22,5 +22,6 @@ public class CreateTransactionRequest {
     Double amount;
     User user;
     Long bookingPartnerId;
+    Long bookingId;
 
 }

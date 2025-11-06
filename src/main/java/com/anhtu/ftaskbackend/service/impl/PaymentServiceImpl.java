@@ -2,13 +2,19 @@ package com.anhtu.ftaskbackend.service.impl;
 
 import com.anhtu.ftaskbackend.dto.request.Wallet.AdjustWalletBalanceRequest;
 import com.anhtu.ftaskbackend.dto.request.payment.CreatePaymentRequest;
+import com.anhtu.ftaskbackend.dto.request.transaction.CreateTransactionRequest;
 import com.anhtu.ftaskbackend.dto.response.payment.PaymentResponse;
+import com.anhtu.ftaskbackend.entity.Payment;
+import com.anhtu.ftaskbackend.entity.User;
+import com.anhtu.ftaskbackend.enums.PaymentStatus;
 import com.anhtu.ftaskbackend.enums.TransactionType;
 import com.anhtu.ftaskbackend.exception.AppException;
 import com.anhtu.ftaskbackend.exception.ErrorCode;
 import com.anhtu.ftaskbackend.repository.PaymentRepository;
 import com.anhtu.ftaskbackend.repository.TransactionRepository;
+import com.anhtu.ftaskbackend.repository.UserRepository;
 import com.anhtu.ftaskbackend.service.PaymentService;
+import com.anhtu.ftaskbackend.service.TransactionService;
 import com.anhtu.ftaskbackend.service.WalletService;
 import com.anhtu.ftaskbackend.thirdParty.VNPayAPI;
 import jakarta.servlet.ServletException;
@@ -31,9 +37,12 @@ public class PaymentServiceImpl implements PaymentService {
     @Autowired
     PaymentRepository paymentRepository;
     @Autowired
-    TransactionRepository transactionRepository;
+    TransactionService transactionService;
     @Autowired
     WalletService walletService;
+    @Autowired
+    UserRepository userRepository;
+
 
     @Override
     public void confirmPayment(String orderInfo, String vnp_ResponseCode, String vnp_TransactionStatus) {
@@ -64,7 +73,17 @@ public class PaymentServiceImpl implements PaymentService {
                     walletService.adjustBalance(userId, AdjustWalletBalanceRequest.builder().amount(amount).type(TransactionType.WITHDRAWAL).build());
                 }
                 case "PAYMENT" -> {
-                    // logic thanh toán dịch vụ khác
+                    walletService.adjustBalance(userId, AdjustWalletBalanceRequest.builder().amount(amount).type(TransactionType.TOP_UP).build());
+                    Long bookingId = Long.parseLong(parts[7]);
+                    System.out.println("Booking: " + bookingId);
+                    walletService.adjustBalance(userId, AdjustWalletBalanceRequest.builder()
+                            .amount(amount)
+                            .type(TransactionType.ADJUSTMENT)
+                            .bookingId(bookingId).build());
+                    Payment payment = paymentRepository.findByBooking_Id(bookingId)
+                            .orElseThrow(() -> new AppException(ErrorCode.PaymentNotFoundByBookingId));
+                    payment.setStatus(PaymentStatus.SUCCESS);
+                    paymentRepository.save(payment);
                 }
                 default -> throw new AppException(ErrorCode.UnknownType);
             }
