@@ -43,6 +43,7 @@ public enum ErrorCode {
     ReviewAlreadyExists(HttpStatus.BAD_REQUEST.value(), "You have already reviewed this partner for this booking", HttpStatus.BAD_REQUEST),
     InvalidOrderInfo(HttpStatus.BAD_REQUEST.value(), "The provided order info is invalid", HttpStatus.BAD_REQUEST),
     UnknownType(HttpStatus.BAD_REQUEST.value(), "Unknown payment type", HttpStatus.BAD_REQUEST),
+    NotEnoughMoney(HttpStatus.BAD_REQUEST.value(), "Not enough money", HttpStatus.BAD_REQUEST),
 
     //404 Not found
     UserNotFoundByPhone(HttpStatus.NOT_FOUND.value(), "This user does not exist with this phone number", HttpStatus.NOT_FOUND),

@@ -42,7 +42,13 @@ public class WalletServiceImpl implements WalletService {
         Double balanceBefore = wallet.getBalance();
         switch (request.getType()){
             case TOP_UP, EARNING, REFUND -> wallet.setBalance(balanceBefore + request.getAmount());
-            case WITHDRAWAL, FINE, PLATFORM_FEE, ADJUSTMENT -> wallet.setBalance(balanceBefore - request.getAmount());
+            case FINE, PLATFORM_FEE, ADJUSTMENT -> wallet.setBalance(balanceBefore - request.getAmount());
+            case WITHDRAWAL -> {
+                if (balanceBefore < request.getAmount()) {
+                    throw new AppException(ErrorCode.NotEnoughMoney);
+                }
+                wallet.setBalance(balanceBefore - request.getAmount());
+            }
         }
         Double balanceAfter = wallet.getBalance();
         walletRepository.save(wallet);
