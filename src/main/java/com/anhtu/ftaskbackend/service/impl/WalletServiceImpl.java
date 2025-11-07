@@ -41,7 +41,7 @@ public class WalletServiceImpl implements WalletService {
         Wallet wallet = user.getWallet();
         Double balanceBefore = wallet.getBalance();
         switch (request.getType()){
-            case TOP_UP, EARNING -> wallet.setBalance(balanceBefore + request.getAmount());
+            case TOP_UP, EARNING, REFUND -> wallet.setBalance(balanceBefore + request.getAmount());
             case WITHDRAWAL, FINE, PLATFORM_FEE, ADJUSTMENT -> wallet.setBalance(balanceBefore - request.getAmount());
         }
         Double balanceAfter = wallet.getBalance();

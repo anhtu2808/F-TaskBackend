@@ -38,11 +38,14 @@ public class WalletController {
     }
 
     @PostMapping("/withdrawal")
-    public ApiResponse<Map<String, Object>> withdrawal(@RequestParam Double amount) {
-        String info = "User_" + JWTHelper.getCurrentUserId() + "_type_WITHDRAWAL_amount_" + amount;
-        return ApiResponse.<Map<String, Object>>builder()
+    public ApiResponse<Void> withdrawal(@RequestParam Double amount) {
+        walletService.adjustBalance(JWTHelper.getCurrentUserId(),
+                AdjustWalletBalanceRequest.builder()
+                        .type(TransactionType.WITHDRAWAL)
+                        .amount(amount)
+                        .build());
+        return ApiResponse.<Void>builder()
                 .message("Withdrawal wallet successful")
-                .result(vnPayAPI.createPayment(amount, info, TransactionType.WITHDRAWAL.toString()))
                 .build();
     }
 
