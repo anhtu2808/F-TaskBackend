@@ -75,10 +75,12 @@ public class TransactionServiceImpl implements TransactionService {
             case FINE -> {
                 description += " vừa bị phạt "
                         + request.getAmount()
-                        + " VNĐ vì huỷ trong khoảng 2 tiếng trước khi công việc bắt đầu.";
+                        + " VNĐ vì huỷ gói booking "
+                        + request.getBookingId()
+                        + " trong khoảng 4 tiếng trước khi công việc bắt đầu.";
             }
             case PLATFORM_FEE -> {
-                description += " vừa bị thu phí phần mềm"
+                description += " vừa bị thu phí nền tảng"
                         + request.getAmount()
                         + " VNĐ.";
             }
@@ -91,6 +93,12 @@ public class TransactionServiceImpl implements TransactionService {
                 description += " vừa thanh toán "
                         + request.getAmount()
                         + " VNĐ cho booking "
+                        + request.getBookingId() + ".";
+            }
+            case REFUND -> {
+                description += " vừa được hoàn "
+                        + request.getAmount()
+                        + " VNĐ vì khách hàng đã huỷ gói booking "
                         + request.getBookingId() + ".";
             }
         }
