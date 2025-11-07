@@ -146,7 +146,8 @@ public class BookingServiceImpl implements BookingService {
         // Compute penalty: 30% if within 4 hours to start
         LocalDateTime now = LocalDateTime.now();
         long hoursUntilStart = Duration.between(now, booking.getStartAt()).toHours();
-        double penalty = hoursUntilStart < 4 ? booking.getTotalPrice() * 0.30 : 0.0;
+        boolean isInLast4Hours = hoursUntilStart < 4;
+        double penalty = isInLast4Hours ? booking.getTotalPrice() * 0.30 : 0.0;
 
         // Determine claimed partners to split penalty
         List<BookingPartnerStatus> eligibleStatuses = List.of(BookingPartnerStatus.JOINED, BookingPartnerStatus.WORKING);
@@ -154,19 +155,32 @@ public class BookingServiceImpl implements BookingService {
         int partnerCount = claimedPartners.size();
         double perPartnerShare = partnerCount > 0 ? penalty / partnerCount : 0.0;
 
+        // Notifications
+        notificationService.sendBookingCancelledNotification(booking, request.getReason());
+
         // Persist cancellation
+        if (isInLast4Hours) {
+            walletService.adjustBalance(ownerUserId, AdjustWalletBalanceRequest.builder()
+                            .bookingId(booking.getId())
+                            .type(TransactionType.FINE)
+                            .amount(booking.getTotalPrice())
+                    .build());
+        }
+        if (perPartnerShare > 0.0) {
+            List<BookingPartner> partners = bookingPartnerRepository.findByBooking_Id(booking.getId());
+            for (BookingPartner partner : partners) {
+                User partnerUser = partner.getPartner().getUser();
+                walletService.adjustBalance(partnerUser.getId(), AdjustWalletBalanceRequest.builder()
+                                .type(TransactionType.REFUND)
+                                .amount(perPartnerShare)
+                                .bookingPartnerId(partner.getId())
+                                .bookingId(booking.getId())
+                        .build());
+            }
+        }
         booking.setStatus(BookingStatus.CANCELLED);
         booking.setCancelReason(request.getReason());
         bookingRepository.save(booking);
-        if (!booking.getStartAt().isBefore(LocalDateTime.now().plusHours(4))) {
-            transactionService.createTransaction(CreateTransactionRequest.builder()
-                    .type(TransactionType.FINE)
-                    .amount(booking.getTotalPrice() * 0.3)
-                    .build());
-        }
-
-        // Notifications
-        notificationService.sendBookingCancelledNotification(booking, request.getReason());
 
         // TODO: Transactions integration points
         // - Deduct 'penalty' from customer wallet
