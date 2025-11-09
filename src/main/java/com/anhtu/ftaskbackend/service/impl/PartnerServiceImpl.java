@@ -12,6 +12,7 @@ import com.anhtu.ftaskbackend.mapper.BookingMapper;
 import com.anhtu.ftaskbackend.repository.BookingPartnerRepository;
 import com.anhtu.ftaskbackend.repository.BookingRepository;
 import com.anhtu.ftaskbackend.repository.PartnerRepository;
+import com.anhtu.ftaskbackend.service.NotificationService;
 import com.anhtu.ftaskbackend.service.PartnerService;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -34,6 +35,7 @@ public class PartnerServiceImpl implements PartnerService {
     BookingRepository bookingRepository;
     BookingPartnerRepository bookingPartnerRepository;
     BookingMapper bookingMapper;
+    NotificationService notificationService;
 
     @Override
     public BookingResponse claimBooking(Long partnerId, Long bookingId) {
@@ -75,6 +77,9 @@ public class PartnerServiceImpl implements PartnerService {
                 .build();
 
         bookingPartnerRepository.save(bookingPartner);
+
+        // Send notification to customer when partner claims booking
+        notificationService.sendBookingClaimedNotification(booking);
 
         return bookingMapper.toBookingResponse(booking);
     }
@@ -125,6 +130,9 @@ public class PartnerServiceImpl implements PartnerService {
         }
         booking = bookingRepository.save(booking);
 
+        // Send notification to customer when partner cancels claim
+        notificationService.sendPartnerCancelledClaimNotification(booking, partner);
+
         // TODO: Transaction integration points
         // - Deduct 'penalty' from partner's wallet if penalty > 0
         // - Example placeholder (disabled):
@@ -159,6 +167,9 @@ public class PartnerServiceImpl implements PartnerService {
 
         booking.setStatus(BookingStatus.IN_PROGRESS);
         booking = bookingRepository.save(booking);
+
+        // Send notification to customer when partner starts working
+        notificationService.sendBookingStartedNotification(booking);
 
         return bookingMapper.toBookingResponse(booking);
     }
@@ -199,6 +210,8 @@ public class PartnerServiceImpl implements PartnerService {
         if (completedPartners == totalPartners && totalPartners > 0) {
             booking.setStatus(BookingStatus.COMPLETED);
             booking = bookingRepository.save(booking);
+            // Send notification to customer when all partners complete the booking
+            notificationService.sendBookingCompletedNotification(booking);
         }
 
         return bookingMapper.toBookingResponse(booking);

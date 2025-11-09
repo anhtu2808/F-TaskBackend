@@ -2,16 +2,23 @@ package com.anhtu.ftaskbackend.service;
 
 import com.anhtu.ftaskbackend.dto.response.notification.NotificationResponse;
 import com.anhtu.ftaskbackend.entity.Booking;
+import com.anhtu.ftaskbackend.entity.Partner;
 import com.anhtu.ftaskbackend.entity.Review;
+import com.anhtu.ftaskbackend.entity.User;
 
 import java.util.List;
 
 public interface NotificationService {
 
     /**
-     * Gửi notification khi có booking mới được tạo
+     * Gửi notification khi có booking mới được tạo (gửi cho partners)
      */
     void sendBookingCreatedNotification(Booking booking);
+
+    /**
+     * Gửi notification cho customer khi booking được tạo thành công
+     */
+    void sendBookingPlacedConfirmationNotification(Booking booking);
 
     /**
      * Gửi notification khi partner nhận việc
@@ -57,4 +64,29 @@ public interface NotificationService {
      * Đếm số lượng notification chưa đọc của user
      */
     Long getUnreadCount(Long userId);
+
+    /**
+     * Gửi notification khi partner bắt đầu công việc
+     */
+    void sendBookingStartedNotification(Booking booking);
+
+    /**
+     * Gửi notification khi partner hủy claim booking
+     */
+    void sendPartnerCancelledClaimNotification(Booking booking, Partner partner);
+
+    /**
+     * Gửi notification khi payment thành công
+     */
+    void sendPaymentSuccessNotification(User user, Double amount, String paymentType, Long bookingId);
+
+    /**
+     * Gửi notification khi payment thất bại
+     */
+    void sendPaymentFailedNotification(User user, Double amount, String paymentType);
+
+    /**
+     * Gửi notification khi partner nhận được tiền từ booking đã hoàn thành
+     */
+    void sendEarningReceivedNotification(User partner, Double amount, Booking booking);
 }

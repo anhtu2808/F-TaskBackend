@@ -9,6 +9,7 @@ import com.anhtu.ftaskbackend.exception.AppException;
 import com.anhtu.ftaskbackend.exception.ErrorCode;
 import com.anhtu.ftaskbackend.mapper.ReviewMapper;
 import com.anhtu.ftaskbackend.repository.*;
+import com.anhtu.ftaskbackend.service.NotificationService;
 import com.anhtu.ftaskbackend.service.ReviewService;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -32,6 +33,7 @@ public class ReviewServiceImpl implements ReviewService {
     CustomerRepository customerRepository;
     PartnerRepository partnerRepository;
     ReviewMapper mapper;
+    NotificationService notificationService;
 
     @Override
     public ReviewResponse createReview(Long userId, ReviewRequest request) {
@@ -72,6 +74,9 @@ public class ReviewServiceImpl implements ReviewService {
         reviewRepository.save(review);
 
         updatePartnerAverageRating(partner.getId());
+
+        // Send notification to partner when review is created
+        notificationService.sendReviewReceivedNotification(review);
 
         log.info("Customer {} created review for partner {} on booking {}", 
                  customer.getId(), partner.getId(), booking.getId());

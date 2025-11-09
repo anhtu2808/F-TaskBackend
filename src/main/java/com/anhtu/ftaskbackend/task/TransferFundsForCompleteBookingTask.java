@@ -9,6 +9,7 @@ import com.anhtu.ftaskbackend.enums.TransactionType;
 import com.anhtu.ftaskbackend.repository.BookingPartnerRepository;
 import com.anhtu.ftaskbackend.repository.BookingRepository;
 import com.anhtu.ftaskbackend.repository.UserRepository;
+import com.anhtu.ftaskbackend.service.NotificationService;
 import com.anhtu.ftaskbackend.service.WalletService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -25,6 +26,7 @@ public class TransferFundsForCompleteBookingTask {
     private final BookingRepository bookingRepository;
     private final BookingPartnerRepository bookingPartnerRepository;
     private final WalletService walletService;
+    private final NotificationService notificationService;
 
     @Scheduled(fixedRate = 60000)
     public void transferFundsForCompleteBooking() {
@@ -42,6 +44,8 @@ public class TransferFundsForCompleteBookingTask {
                                         .amount(partner.getPartnerEarnings())
                                         .type(TransactionType.EARNING)
                                 .build());
+                        // Send notification to partner when they receive earnings
+                        notificationService.sendEarningReceivedNotification(user, partner.getPartnerEarnings(), booking);
                     }
                 }
             }
