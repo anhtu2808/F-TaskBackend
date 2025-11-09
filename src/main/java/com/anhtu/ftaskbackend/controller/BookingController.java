@@ -4,10 +4,13 @@ import com.anhtu.ftaskbackend.common.ApiResponse;
 import com.anhtu.ftaskbackend.dto.request.booking.CancelBookingRequest;
 import com.anhtu.ftaskbackend.dto.request.booking.CreateBookingRequest;
 import com.anhtu.ftaskbackend.dto.request.booking.FilterBooking;
+import com.anhtu.ftaskbackend.dto.request.chat.ChatRequest;
 import com.anhtu.ftaskbackend.dto.request.booking.InsufficientPartnersResponseRequest;
 import com.anhtu.ftaskbackend.dto.response.booking.BookingResponse;
+import com.anhtu.ftaskbackend.dto.response.chat.ChatResponse;
 import com.anhtu.ftaskbackend.dto.response.booking.GenerateQRCodeResponse;
 import com.anhtu.ftaskbackend.service.BookingService;
+import com.anhtu.ftaskbackend.service.ChatService;
 import lombok.AccessLevel;
 import lombok.experimental.FieldDefaults;
 import org.springdoc.core.annotations.ParameterObject;
@@ -26,6 +29,8 @@ public class BookingController {
 
     @Autowired
     BookingService bookingService;
+    @Autowired
+    ChatService chatService;
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
@@ -77,8 +82,8 @@ public class BookingController {
         bookingService.handleInsufficientPartnersResponse(id, request);
         return ApiResponse.<Void>builder()
                 .code(200)
-                .message(request.getCancel() != null && request.getCancel() 
-                    ? "Booking cancelled successfully with full refund" 
+                .message(request.getCancel() != null && request.getCancel()
+                    ? "Booking cancelled successfully with full refund"
                     : "Booking will continue with available partners")
                 .build();
     }
@@ -95,7 +100,13 @@ public class BookingController {
                 .build();
     }
 
-//    @PostMapping("/{id}/pay-for-booking")
-//    public ApiResponse<>
+    @PostMapping("/{id}/chat")
+    public ApiResponse<ChatResponse> CreateChatMessage(@PathVariable Long id, @RequestBody ChatRequest request){
+        return ApiResponse.<ChatResponse>builder()
+                .code(200)
+                .message("Create chat message successfully")
+                .result(chatService.sendMessage(id, request))
+                .build();
+    }
 
 }
