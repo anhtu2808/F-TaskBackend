@@ -43,6 +43,7 @@ public class BookingResponse {
     ServiceVariantResponse variant;
     AddressResponse address;
     PaymentMethod method;
+    int numberOfJoinedPartner;
     Set<BookingPartnerResponse> partners;
 
 }
