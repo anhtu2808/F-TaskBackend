@@ -12,4 +12,5 @@ public interface ChatService {
     void saveMessage(String id, Object message);
     ChatResponse sendMessage(Long id, ChatRequest request);
     List<ChatResponse> getChatHistoryFromFirestore(Long bookingId, Long receiverId);
+    List<ChatResponse> getAllChatThreadsOfCurrentUser();
 }

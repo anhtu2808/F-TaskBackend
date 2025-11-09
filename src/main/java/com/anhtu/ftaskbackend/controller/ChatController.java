@@ -51,5 +51,14 @@ public class ChatController {
                 .build();
     }
 
+    @GetMapping("/firebase/threads")
+    public ApiResponse<List<ChatResponse>> getAllChatThreadsOfCurrentUser() {
+        return ApiResponse.<List<ChatResponse>>builder()
+                .code(200)
+                .message("Get all chat threads of current user successfully")
+                .result(chatService.getAllChatThreadsOfCurrentUser())
+                .build();
+    }
+
 }
 

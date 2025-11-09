@@ -160,5 +160,66 @@ public class ChatServiceImpl implements ChatService {
             throw new RuntimeException("Failed to fetch chat history from Firestore", e);
         }
     }
+
+    @Override
+    public List<ChatResponse> getAllChatThreadsOfCurrentUser() {
+        try {
+            Long userId = JWTHelper.getCurrentUserId();
+            Firestore db = getFirestore();
+
+            var chatRoomsSnapshot = db.collection("chat_rooms").get().get();
+
+            // Dùng map key = bookingId_receiverId để gom các thread
+            Map<String, ChatResponse> latestMessageByThread = new HashMap<>();
+
+            for (var room : chatRoomsSnapshot.getDocuments()) {
+                String roomId = room.getId(); // ví dụ: booking_3
+                Long bookingId = Long.parseLong(roomId.replace("booking_", ""));
+
+                var messagesSnapshot = db.collection("chat_rooms")
+                        .document(roomId)
+                        .collection("messages")
+                        .orderBy("createdAt", com.google.cloud.firestore.Query.Direction.DESCENDING)
+                        .get()
+                        .get();
+
+                for (var doc : messagesSnapshot.getDocuments()) {
+                    Map<String, Object> data = doc.getData();
+                    if (data == null) continue;
+
+                    Long senderId = ((Number) data.get("senderId")).longValue();
+                    Long receiverId = ((Number) data.get("receiverId")).longValue();
+
+                    // ✅ chỉ lấy các tin nhắn có liên quan đến current user
+                    if (!senderId.equals(userId) && !receiverId.equals(userId)) continue;
+
+                    // ✅ Xác định ai là đối tác trò chuyện
+                    Long chatPartnerId = senderId.equals(userId) ? receiverId : senderId;
+                    String key = bookingId + "_" + chatPartnerId;
+
+                    // chỉ lấy tin nhắn mới nhất cho mỗi (bookingId + receiverId)
+                    if (!latestMessageByThread.containsKey(key)) {
+                        ChatResponse res = new ChatResponse();
+                        res.setBookingId(bookingId);
+                        res.setRoomName(roomId);
+                        res.setMessageContent((String) data.get("content"));
+                        res.setRead(Boolean.TRUE.equals(data.get("isRead")));
+
+                        res.setSender(userMapper.toUserResponse(
+                                userRepository.findById(senderId).orElse(null)));
+                        res.setReceiver(userMapper.toUserResponse(
+                                userRepository.findById(receiverId).orElse(null)));
+
+                        latestMessageByThread.put(key, res);
+                    }
+                }
+            }
+
+            return new ArrayList<>(latestMessageByThread.values());
+
+        } catch (Exception e) {
+            throw new RuntimeException("❌ Failed to fetch all chat threads from Firestore", e);
+        }
+    }
 }
 

@@ -37,6 +37,7 @@ public class TransferFundsForCompleteBookingTask {
         for (Booking booking : bookings) {
             if (now.isAfter(booking.getCompletedAt().plusHours(1))) {
                 List<BookingPartner> partners = bookingPartnerRepository.findByBooking_Id(booking.getId());
+                int numberOfPartners = partners.size();
                 for (BookingPartner partner : partners) {
                     if (partner.getStatus() != BookingPartnerStatus.EARNED) {
                         User user = partner.getPartner().getUser();
@@ -48,6 +49,12 @@ public class TransferFundsForCompleteBookingTask {
                                 .build());
                         partner.setStatus(BookingPartnerStatus.EARNED);
                         bookingPartnerRepository.save(partner);
+                        walletService.adjustBalance(user.getId(), AdjustWalletBalanceRequest.builder()
+                                .bookingId(booking.getId())
+                                .bookingPartnerId(partner.getId())
+                                .amount((booking.getPlatformFee())/numberOfPartners)
+                                .type(TransactionType.PLATFORM_FEE)
+                                .build());
                         notificationService.sendEarningReceivedNotification(user, partner.getPartnerEarnings(), booking);
                     }
                 }
