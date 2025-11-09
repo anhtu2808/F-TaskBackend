@@ -200,4 +200,12 @@ public class BookingServiceImpl implements BookingService {
         //         .description("Share from cancellation penalty")
         //         .build()));
     }
+
+    @Override
+    public Page<BookingResponse> getAllCustomerBookings(Long customerId, FilterBooking params) {
+        var spec = BookingSpecification.filter(params);
+        var pageable = PageRequest.of(params.getPage() - 1, params.getSize());
+        return bookingRepository.findBookingByCustomerId(customerId, pageable)
+                .map(bookingMapper::toBookingResponse);
+    }
 }
