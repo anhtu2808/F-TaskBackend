@@ -4,6 +4,7 @@ import com.anhtu.ftaskbackend.dto.request.Wallet.AdjustWalletBalanceRequest;
 import com.anhtu.ftaskbackend.entity.Booking;
 import com.anhtu.ftaskbackend.entity.BookingPartner;
 import com.anhtu.ftaskbackend.entity.User;
+import com.anhtu.ftaskbackend.enums.BookingPartnerStatus;
 import com.anhtu.ftaskbackend.enums.BookingStatus;
 import com.anhtu.ftaskbackend.enums.TransactionType;
 import com.anhtu.ftaskbackend.repository.BookingPartnerRepository;
@@ -31,20 +32,22 @@ public class TransferFundsForCompleteBookingTask {
     @Scheduled(fixedRate = 60000)
     public void transferFundsForCompleteBooking() {
         LocalDateTime now = LocalDateTime.now();
-        List<Booking> bookings = bookingRepository.findBookingByStatus(BookingStatus.COMPLETED);
-        if (!bookings.isEmpty()) {
-            for (Booking booking : bookings) {
-                if (now.isAfter(booking.getCompletedAt().plusHours(1))) {
-                    List<BookingPartner> partners = bookingPartnerRepository.findByBooking_Id(booking.getId());
-                    for (BookingPartner partner : partners) {
+        List<Booking> bookings = bookingRepository.findCompletedBookingsNotYetTransferred();
+
+        for (Booking booking : bookings) {
+            if (now.isAfter(booking.getCompletedAt().plusHours(1))) {
+                List<BookingPartner> partners = bookingPartnerRepository.findByBooking_Id(booking.getId());
+                for (BookingPartner partner : partners) {
+                    if (partner.getStatus() != BookingPartnerStatus.EARNED) {
                         User user = partner.getPartner().getUser();
                         walletService.adjustBalance(user.getId(), AdjustWalletBalanceRequest.builder()
-                                        .bookingId(booking.getId())
-                                        .bookingPartnerId(partner.getId())
-                                        .amount(partner.getPartnerEarnings())
-                                        .type(TransactionType.EARNING)
+                                .bookingId(booking.getId())
+                                .bookingPartnerId(partner.getId())
+                                .amount(partner.getPartnerEarnings())
+                                .type(TransactionType.EARNING)
                                 .build());
-                        // Send notification to partner when they receive earnings
+                        partner.setStatus(BookingPartnerStatus.EARNED);
+                        bookingPartnerRepository.save(partner);
                         notificationService.sendEarningReceivedNotification(user, partner.getPartnerEarnings(), booking);
                     }
                 }

@@ -19,6 +19,16 @@ import java.util.List;
 public interface BookingRepository extends JpaRepository<Booking, Long>, JpaSpecificationExecutor<Booking> {
 
     List<Booking> findBookingByStatus(BookingStatus status);
+
     Page<Booking> findBookingByCustomerId(Long customerId, Pageable pageable);
 
+
+    @Query("""
+                SELECT DISTINCT b
+                FROM Booking b
+                JOIN b.partners p
+                WHERE b.status = 'COMPLETED'
+                  AND p.status <> 'EARNED'
+            """)
+    List<Booking> findCompletedBookingsNotYetTransferred();
 }
