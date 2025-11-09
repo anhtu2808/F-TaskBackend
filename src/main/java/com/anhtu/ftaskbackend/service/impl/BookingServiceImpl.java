@@ -153,11 +153,11 @@ public class BookingServiceImpl implements BookingService {
             throw new AppException(ErrorCode.BadRequest);
         }
 
-        // Compute penalty: 30% if within 4 hours to start
+        // Compute penalty: 30% if within 6 hours to start
         LocalDateTime now = LocalDateTime.now();
         long hoursUntilStart = Duration.between(now, booking.getStartAt()).toHours();
-        boolean isInLast4Hours = hoursUntilStart < 4;
-        double penalty = isInLast4Hours ? booking.getTotalPrice() * 0.30 : 0.0;
+        boolean isInLast6Hours = hoursUntilStart < 6;
+        double penalty = isInLast6Hours ? booking.getTotalPrice() * 0.30 : 0.0;
 
         // Determine claimed partners to split penalty
         List<BookingPartnerStatus> eligibleStatuses = List.of(BookingPartnerStatus.JOINED, BookingPartnerStatus.WORKING);
@@ -169,7 +169,7 @@ public class BookingServiceImpl implements BookingService {
         notificationService.sendBookingCancelledNotification(booking, request.getReason());
 
         // Persist cancellation
-        if (isInLast4Hours) {
+        if (isInLast6Hours) {
             walletService.adjustBalance(ownerUserId, AdjustWalletBalanceRequest.builder()
                             .bookingId(booking.getId())
                             .type(TransactionType.FINE)

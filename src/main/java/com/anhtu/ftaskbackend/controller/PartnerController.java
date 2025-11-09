@@ -67,6 +67,19 @@ public class PartnerController {
                 .build();
     }
 
+    @GetMapping("/my-reviews")
+    @Operation(summary = "Get all reviews of current partner")
+    @ResponseStatus(HttpStatus.OK)
+    public ApiResponse<List<ReviewResponse>> getMyReviews() {
+        Long partnerId = JWTHelper.getCurrentPartnerId();
+        List<ReviewResponse> response = reviewService.getReviewsByPartner(partnerId);
+        return ApiResponse.<List<ReviewResponse>>builder()
+                .code(HttpStatus.OK.value())
+                .message("Get partner reviews successfully")
+                .result(response)
+                .build();
+    }
+
     @GetMapping("/{partnerId}/reviews")
     @Operation(summary = "Get all reviews of a partner")
     public ApiResponse<List<ReviewResponse>> getPartnerReviews(@PathVariable Long partnerId) {
