@@ -2,6 +2,7 @@ package com.anhtu.ftaskbackend.service.impl;
 
 import com.anhtu.ftaskbackend.dto.response.notification.NotificationResponse;
 import com.anhtu.ftaskbackend.entity.*;
+import com.anhtu.ftaskbackend.enums.BookingPartnerStatus;
 import com.anhtu.ftaskbackend.enums.BookingStatus;
 import com.anhtu.ftaskbackend.enums.NotificationType;
 import com.anhtu.ftaskbackend.exception.AppException;
@@ -28,6 +29,7 @@ public class NotificationServiceImpl implements NotificationService {
     private final UserRepository userRepository;
     private final PartnerRepository partnerRepository;
     private final BookingRepository bookingRepository;
+    private final BookingPartnerRepository bookingPartnerRepository;
     private final FCMService fcmService;
     private final NotificationMapper notificationMapper;
 
@@ -603,6 +605,65 @@ public class NotificationServiceImpl implements NotificationService {
             log.info("Sent earning received notification to partner {}", partner.getId());
         } catch (Exception e) {
             log.error("Failed to send notification to partner {}: {}", partner.getId(), e.getMessage());
+        }
+    }
+
+    @Override
+    public void sendInsufficientPartnersNotification(Booking booking) {
+        User customer = booking.getCustomer().getUser();
+        String fcmToken = customer.getFcmToken();
+
+        if (fcmToken == null || fcmToken.isEmpty()) {
+            log.warn("Customer {} has no FCM token, skipping insufficient partners notification", customer.getId());
+            return;
+        }
+
+        // Count current active partners (JOINED or WORKING status)
+        long currentPartners = bookingPartnerRepository.countByBookingAndStatusIn(
+                booking,
+                List.of(BookingPartnerStatus.JOINED, BookingPartnerStatus.WORKING)
+        );
+        int requiredPartners = booking.getRequiredPartners();
+
+        String title = "Cảnh báo: Booking chưa đủ đối tác";
+        String message = String.format(
+                "Booking %s của bạn sắp tới giờ làm (còn %d giờ) nhưng chỉ có %d/%d đối tác. " +
+                "Bạn có muốn hủy booking (hoàn tiền đầy đủ) hay tiếp tục với số đối tác hiện có?",
+                booking.getVariant().getServiceCatalog().getName(),
+                java.time.Duration.between(java.time.LocalDateTime.now(), booking.getStartAt()).toHours(),
+                currentPartners,
+                requiredPartners
+        );
+
+        Notification notification = Notification.builder()
+                .user(customer)
+                .booking(booking)
+                .type(NotificationType.INSUFFICIENT_PARTNERS_WARNING)
+                .title(title)
+                .message(message)
+                .build();
+
+        notificationRepository.save(notification);
+
+        Map<String, String> data = new HashMap<>();
+        data.put("type", NotificationType.INSUFFICIENT_PARTNERS_WARNING.name());
+        data.put("bookingId", String.valueOf(booking.getId()));
+        data.put("currentPartners", String.valueOf(currentPartners));
+        data.put("requiredPartners", String.valueOf(requiredPartners));
+        data.put("notificationId", String.valueOf(notification.getId()));
+
+        try {
+            fcmService.sendNotificationToDevice(
+                    fcmToken,
+                    notification.getTitle(),
+                    notification.getMessage(),
+                    data
+            );
+            log.info("Sent insufficient partners notification to customer {} for booking {}", 
+                    customer.getId(), booking.getId());
+        } catch (Exception e) {
+            log.error("Failed to send insufficient partners notification to customer {}: {}", 
+                    customer.getId(), e.getMessage());
         }
     }
 

@@ -1,6 +1,7 @@
 package com.anhtu.ftaskbackend.controller;
 
 import com.anhtu.ftaskbackend.common.ApiResponse;
+import com.anhtu.ftaskbackend.dto.request.booking.ScanQRCodeRequest;
 import com.anhtu.ftaskbackend.dto.request.partner.RegisterDistrictsRequest;
 import com.anhtu.ftaskbackend.dto.response.booking.BookingResponse;
 import com.anhtu.ftaskbackend.dto.response.district.DistrictResponse;
@@ -48,12 +49,23 @@ public class PartnerController {
     }
 
     @PostMapping("/bookings/{bookingId}/start")
+    @Operation(summary = "Start booking", description = "Partner starts working on a claimed booking")
     public ApiResponse<BookingResponse> startBooking(@PathVariable Long bookingId) {
         Long partnerId = JWTHelper.getCurrentPartnerId();
         BookingResponse response = partnerService.startBooking(partnerId, bookingId);
         return ApiResponse.<BookingResponse>builder()
                 .result(response)
                 .message("Booking started successfully")
+                .build();
+    }
+
+    @PostMapping("/bookings/start-by-qr")
+    @Operation(summary = "Start booking by QR code", description = "Partner scans QR code and starts booking. QR token must be valid and not expired. Partner must have claimed the booking.")
+    public ApiResponse<BookingResponse> startBookingByQR(@RequestBody ScanQRCodeRequest request) {
+        BookingResponse response = partnerService.startBookingByQR(request.getQrToken());
+        return ApiResponse.<BookingResponse>builder()
+                .result(response)
+                .message("Booking started successfully via QR code")
                 .build();
     }
 

@@ -52,6 +52,13 @@ public class Booking extends AbstractAuditingEntity {
     @Builder.Default
     Boolean isCustomerAccepted = false;
 
+    @Column(nullable = false, name = "is_insufficient_partners_notification_sent")
+    @Builder.Default
+    Boolean insufficientPartnersNotificationSent = false;
+
+    @Column(name = "insufficient_partners_notification_sent_at")
+    LocalDateTime insufficientPartnersNotificationSentAt;
+
     @Column(columnDefinition = "TEXT", name = "customer_note")
     String customerNote;
 
