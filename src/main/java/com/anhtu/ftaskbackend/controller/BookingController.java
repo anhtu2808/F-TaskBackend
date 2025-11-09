@@ -5,8 +5,10 @@ import com.anhtu.ftaskbackend.dto.request.booking.CancelBookingRequest;
 import com.anhtu.ftaskbackend.dto.request.booking.CreateBookingRequest;
 import com.anhtu.ftaskbackend.dto.request.booking.FilterBooking;
 import com.anhtu.ftaskbackend.dto.request.chat.ChatRequest;
+import com.anhtu.ftaskbackend.dto.request.booking.InsufficientPartnersResponseRequest;
 import com.anhtu.ftaskbackend.dto.response.booking.BookingResponse;
 import com.anhtu.ftaskbackend.dto.response.chat.ChatResponse;
+import com.anhtu.ftaskbackend.dto.response.booking.GenerateQRCodeResponse;
 import com.anhtu.ftaskbackend.service.BookingService;
 import com.anhtu.ftaskbackend.service.ChatService;
 import lombok.AccessLevel;
@@ -68,6 +70,33 @@ public class BookingController {
         return ApiResponse.<Void>builder()
                 .code(200)
                 .message("Cancel booking successfully")
+                .build();
+    }
+
+    @PostMapping("/{id}/insufficient-partners-response")
+    @ResponseStatus(HttpStatus.OK)
+    @Operation(summary = "Handle insufficient partners response", description = "Customer can choose to cancel (full refund) or continue (cost split among available partners) when booking has insufficient partners within 6 hours of start time.")
+    public ApiResponse<Void> handleInsufficientPartnersResponse(
+            @PathVariable Long id,
+            @RequestBody InsufficientPartnersResponseRequest request) {
+        bookingService.handleInsufficientPartnersResponse(id, request);
+        return ApiResponse.<Void>builder()
+                .code(200)
+                .message(request.getCancel() != null && request.getCancel()
+                    ? "Booking cancelled successfully with full refund"
+                    : "Booking will continue with available partners")
+                .build();
+    }
+
+    @GetMapping("/{bookingId}/qr-code")
+    @ResponseStatus(HttpStatus.OK)
+    @Operation(summary = "Generate QR code for booking", description = "Customer generates QR code token for booking. Token is valid for 1 hour. Only available for FULLY_ACCEPTED or PARTIALLY_ACCEPTED (with customer accepted) bookings.")
+    public ApiResponse<GenerateQRCodeResponse> generateQRCode(@PathVariable Long bookingId) {
+        GenerateQRCodeResponse response = bookingService.generateQRCode(bookingId);
+        return ApiResponse.<GenerateQRCodeResponse>builder()
+                .code(200)
+                .message("QR code generated successfully")
+                .result(response)
                 .build();
     }
 

@@ -22,6 +22,22 @@ public interface BookingRepository extends JpaRepository<Booking, Long>, JpaSpec
 
     Page<Booking> findBookingByCustomerId(Long customerId, Pageable pageable);
 
+    @Query("SELECT b FROM Booking b WHERE b.status IN :statuses " +
+           "AND b.startAt BETWEEN :now AND :sixHoursFromNow " +
+           "AND b.insufficientPartnersNotificationSent = false")
+    List<Booking> findBookingsNeedingInsufficientPartnersCheck(
+            @Param("statuses") List<BookingStatus> statuses,
+            @Param("now") LocalDateTime now,
+            @Param("sixHoursFromNow") LocalDateTime sixHoursFromNow
+    );
+
+    @Query("SELECT b FROM Booking b WHERE b.insufficientPartnersNotificationSentAt IS NOT NULL " +
+           "AND b.insufficientPartnersNotificationSentAt <= :oneHourAgo " +
+           "AND b.status IN :statuses")
+    List<Booking> findBookingsForAutoCancel(
+            @Param("oneHourAgo") LocalDateTime oneHourAgo,
+            @Param("statuses") List<BookingStatus> statuses
+    );
 
     @Query("""
                 SELECT DISTINCT b

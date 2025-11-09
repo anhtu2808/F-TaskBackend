@@ -3,14 +3,19 @@ package com.anhtu.ftaskbackend.service.impl;
 import com.anhtu.ftaskbackend.dto.request.partner.RegisterDistrictsRequest;
 import com.anhtu.ftaskbackend.dto.response.booking.BookingResponse;
 import com.anhtu.ftaskbackend.dto.response.district.DistrictResponse;
+import com.anhtu.ftaskbackend.dto.request.Wallet.AdjustWalletBalanceRequest;
 import com.anhtu.ftaskbackend.entity.Booking;
 import com.anhtu.ftaskbackend.entity.BookingPartner;
 import com.anhtu.ftaskbackend.entity.District;
 import com.anhtu.ftaskbackend.entity.Partner;
+import com.anhtu.ftaskbackend.entity.User;
 import com.anhtu.ftaskbackend.enums.BookingPartnerStatus;
 import com.anhtu.ftaskbackend.enums.BookingStatus;
+import com.anhtu.ftaskbackend.enums.TransactionType;
 import com.anhtu.ftaskbackend.exception.AppException;
 import com.anhtu.ftaskbackend.exception.ErrorCode;
+import com.anhtu.ftaskbackend.helper.JWTHelper;
+import com.anhtu.ftaskbackend.helper.QRTokenHelper;
 import com.anhtu.ftaskbackend.mapper.BookingMapper;
 import com.anhtu.ftaskbackend.mapper.DistrictMapper;
 import com.anhtu.ftaskbackend.repository.BookingPartnerRepository;
@@ -19,6 +24,7 @@ import com.anhtu.ftaskbackend.repository.DistrictRepository;
 import com.anhtu.ftaskbackend.repository.PartnerRepository;
 import com.anhtu.ftaskbackend.service.NotificationService;
 import com.anhtu.ftaskbackend.service.PartnerService;
+import com.anhtu.ftaskbackend.service.WalletService;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -46,6 +52,8 @@ public class PartnerServiceImpl implements PartnerService {
     NotificationService notificationService;
     DistrictRepository districtRepository;
     DistrictMapper districtMapper;
+    WalletService walletService;
+    QRTokenHelper qrTokenHelper;
 
     @Override
     public BookingResponse claimBooking(Long partnerId, Long bookingId) {
@@ -54,6 +62,15 @@ public class PartnerServiceImpl implements PartnerService {
 
         Booking booking = bookingRepository.findById(bookingId)
                                            .orElseThrow(() -> new AppException(ErrorCode.BookingNotFound));
+
+        // Check if partner's wallet balance is negative
+        User partnerUser = partner.getUser();
+        if (partnerUser != null && partnerUser.getWallet() != null) {
+            Double walletBalance = partnerUser.getWallet().getBalance();
+            if (walletBalance != null && walletBalance < 0) {
+                throw new AppException(ErrorCode.WalletNegativeBalance);
+            }
+        }
 
         boolean alreadyClaimed = bookingPartnerRepository.existsByPartnerAndBooking(partner, booking);
         if (alreadyClaimed) {
@@ -116,10 +133,10 @@ public class PartnerServiceImpl implements PartnerService {
             throw new AppException(ErrorCode.PartnerNotInWorkingStatus);
         }
 
-        // Compute penalty: 30% of booking total if within 4 hours to start
+        // Compute penalty: 30% of booking total if within 6 hours to start
         LocalDateTime now = LocalDateTime.now();
         long hoursUntilStart = Duration.between(now, booking.getStartAt()).toHours();
-        double penalty = hoursUntilStart < 4 ? booking.getTotalPrice() * 0.30 : 0.0;
+        double penalty = hoursUntilStart < 6 ? booking.getTotalPrice() * 0.30 : 0.0;
 
         // Persist cancellation
         bookingPartner.setStatus(BookingPartnerStatus.CANCELLED);
@@ -143,17 +160,16 @@ public class PartnerServiceImpl implements PartnerService {
         // Send notification to customer when partner cancels claim
         notificationService.sendPartnerCancelledClaimNotification(booking, partner);
 
-        // TODO: Transaction integration points
-        // - Deduct 'penalty' from partner's wallet if penalty > 0
-        // - Example placeholder (disabled):
-        // if (penalty > 0) {
-        //     transactionService.createTransaction(CreateTransactionRequest.builder()
-        //             .type(TransactionType.FINE)
-        //             .amount(penalty)
-        //             .bookingPartnerId(bookingPartner.getId())
-        //             .description("Penalty for late cancellation (<4h before start)")
-        //             .build());
-        // }
+        // Deduct penalty from partner's wallet if penalty > 0
+        if (penalty > 0) {
+            User partnerUser = partner.getUser();
+            walletService.adjustBalance(partnerUser.getId(), AdjustWalletBalanceRequest.builder()
+                    .type(TransactionType.FINE)
+                    .amount(penalty)
+                    .bookingPartnerId(bookingPartner.getId())
+                    .bookingId(booking.getId())
+                    .build());
+        }
 
         return bookingMapper.toBookingResponse(booking);
     }
@@ -182,6 +198,18 @@ public class PartnerServiceImpl implements PartnerService {
         notificationService.sendBookingStartedNotification(booking);
 
         return bookingMapper.toBookingResponse(booking);
+    }
+
+    @Override
+    public BookingResponse startBookingByQR(String qrToken) {
+        // Verify QR token and extract bookingId
+        Long bookingId = qrTokenHelper.verifyQRToken(qrToken);
+        
+        // Get current authenticated partner from JWT
+        Long partnerId = JWTHelper.getCurrentPartnerId();
+        
+        // Reuse existing startBooking logic (includes all validations)
+        return startBooking(partnerId, bookingId);
     }
 
     @Override

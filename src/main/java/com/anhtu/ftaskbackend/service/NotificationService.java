@@ -89,4 +89,9 @@ public interface NotificationService {
      * Gửi notification khi partner nhận được tiền từ booking đã hoàn thành
      */
     void sendEarningReceivedNotification(User partner, Double amount, Booking booking);
+
+    /**
+     * Gửi notification cho customer khi booking sắp tới giờ làm nhưng chưa đủ partner
+     */
+    void sendInsufficientPartnersNotification(Booking booking);
 }

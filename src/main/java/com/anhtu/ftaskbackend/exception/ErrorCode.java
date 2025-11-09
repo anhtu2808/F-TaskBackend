@@ -44,6 +44,10 @@ public enum ErrorCode {
     InvalidOrderInfo(HttpStatus.BAD_REQUEST.value(), "The provided order info is invalid", HttpStatus.BAD_REQUEST),
     UnknownType(HttpStatus.BAD_REQUEST.value(), "Unknown payment type", HttpStatus.BAD_REQUEST),
     NotEnoughMoney(HttpStatus.BAD_REQUEST.value(), "Not enough money", HttpStatus.BAD_REQUEST),
+    WalletNegativeBalance(HttpStatus.BAD_REQUEST.value(), "Tài khoản của bạn hiện bị vô hiệu hoá một số tính năng vui lòng thanh toán tiền phạt để tiếp tục sử dụng", HttpStatus.BAD_REQUEST),
+    QRTokenInvalid(HttpStatus.BAD_REQUEST.value(), "Invalid QR token format or signature", HttpStatus.BAD_REQUEST),
+    QRTokenExpired(HttpStatus.BAD_REQUEST.value(), "QR token has expired", HttpStatus.BAD_REQUEST),
+    BookingQRNotAvailable(HttpStatus.BAD_REQUEST.value(), "QR code not available for this booking status", HttpStatus.BAD_REQUEST),
 
     //404 Not found
     UserNotFoundByPhone(HttpStatus.NOT_FOUND.value(), "This user does not exist with this phone number", HttpStatus.NOT_FOUND),
