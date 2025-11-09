@@ -18,7 +18,7 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
 @Entity
-@SQLDelete(sql = "UPDATE payment SET deleted = 1, updated_at = CURRENT_TIMESTAMP WHERE id = ?")
+@SQLDelete(sql = "UPDATE payment SET deleted = 1, update_at = CURRENT_TIMESTAMP WHERE id = ?")
 @SQLRestriction("deleted = 0")
 public class Payment extends AbstractAuditingEntity {
 

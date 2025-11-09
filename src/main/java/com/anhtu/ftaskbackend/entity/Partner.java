@@ -17,7 +17,7 @@ import java.util.List;
 @AllArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
 @Entity
-@SQLDelete(sql = "UPDATE partner SET deleted = 1, updated_at = CURRENT_TIMESTAMP WHERE id = ?")
+@SQLDelete(sql = "UPDATE partner SET deleted = 1, update_at = CURRENT_TIMESTAMP WHERE id = ?")
 @SQLRestriction("deleted = 0")
 public class Partner extends AbstractAuditingEntity {
 

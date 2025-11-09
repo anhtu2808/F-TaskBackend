@@ -19,7 +19,7 @@ import java.util.Set;
 @AllArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
 @Entity
-@SQLDelete(sql = "UPDATE booking SET deleted = 1, updated_at = CURRENT_TIMESTAMP WHERE id = ?")
+@SQLDelete(sql = "UPDATE booking SET deleted = 1, update_at = CURRENT_TIMESTAMP WHERE id = ?")
 @SQLRestriction("deleted = 0")
 public class Booking extends AbstractAuditingEntity {
 

@@ -15,7 +15,7 @@ import org.hibernate.annotations.SQLRestriction;
 @AllArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
 @Entity
-@SQLDelete(sql = "UPDATE user SET deleted = 1, updated_at = CURRENT_TIMESTAMP WHERE id = ?")
+@SQLDelete(sql = "UPDATE user SET deleted = 1, update_at = CURRENT_TIMESTAMP WHERE id = ?")
 @SQLRestriction("deleted = 0")
 public class User extends AbstractAuditingEntity {
     @Id
