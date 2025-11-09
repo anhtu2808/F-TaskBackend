@@ -1,9 +1,11 @@
 package com.anhtu.ftaskbackend.dto.response.partner;
 
+import com.anhtu.ftaskbackend.dto.response.district.DistrictResponse;
 import com.anhtu.ftaskbackend.dto.response.user.UserResponse;
-import com.anhtu.ftaskbackend.entity.User;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
+
+import java.util.List;
 
 @Getter
 @Setter
@@ -17,7 +19,7 @@ public class PartnerResponse {
     Double averageRating;
     Integer totalJobsCompleted;
     Boolean isAvailable;
-    String districtIdsJson;
+    List<DistrictResponse> districts;
     UserResponse user;
 
 }

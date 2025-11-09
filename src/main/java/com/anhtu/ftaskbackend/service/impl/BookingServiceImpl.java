@@ -87,6 +87,10 @@ public class BookingServiceImpl implements BookingService {
                 .customerNote(request.getCustomerNote())
                 .build();
         bookingRepository.save(booking);
+        
+        // Send confirmation notification to customer when booking is created
+        notificationService.sendBookingPlacedConfirmationNotification(booking);
+        
         Payment payment = Payment.builder()
                 .amount(booking.getTotalPrice())
                 .method(request.getMethod())
@@ -100,8 +104,12 @@ public class BookingServiceImpl implements BookingService {
                     .bookingId(booking.getId())
                     .build());
             payment.setStatus(PaymentStatus.SUCCESS);
+            paymentRepository.save(payment);
+            // Send notification to eligible partners when booking is created and paid
+            notificationService.sendBookingCreatedNotification(booking);
+        } else {
+            paymentRepository.save(payment);
         }
-        paymentRepository.save(payment);
         return bookingMapper.toBookingResponse(booking);
     }
 

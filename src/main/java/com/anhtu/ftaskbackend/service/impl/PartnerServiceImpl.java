@@ -1,17 +1,23 @@
 package com.anhtu.ftaskbackend.service.impl;
 
+import com.anhtu.ftaskbackend.dto.request.partner.RegisterDistrictsRequest;
 import com.anhtu.ftaskbackend.dto.response.booking.BookingResponse;
+import com.anhtu.ftaskbackend.dto.response.district.DistrictResponse;
 import com.anhtu.ftaskbackend.entity.Booking;
 import com.anhtu.ftaskbackend.entity.BookingPartner;
+import com.anhtu.ftaskbackend.entity.District;
 import com.anhtu.ftaskbackend.entity.Partner;
 import com.anhtu.ftaskbackend.enums.BookingPartnerStatus;
 import com.anhtu.ftaskbackend.enums.BookingStatus;
 import com.anhtu.ftaskbackend.exception.AppException;
 import com.anhtu.ftaskbackend.exception.ErrorCode;
 import com.anhtu.ftaskbackend.mapper.BookingMapper;
+import com.anhtu.ftaskbackend.mapper.DistrictMapper;
 import com.anhtu.ftaskbackend.repository.BookingPartnerRepository;
 import com.anhtu.ftaskbackend.repository.BookingRepository;
+import com.anhtu.ftaskbackend.repository.DistrictRepository;
 import com.anhtu.ftaskbackend.repository.PartnerRepository;
+import com.anhtu.ftaskbackend.service.NotificationService;
 import com.anhtu.ftaskbackend.service.PartnerService;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -21,6 +27,9 @@ import org.springframework.stereotype.Service;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.Arrays;
+import java.util.HashSet;
+import java.util.List;
+import java.util.stream.Collectors;
 
 import static lombok.AccessLevel.PRIVATE;
 
@@ -34,6 +43,9 @@ public class PartnerServiceImpl implements PartnerService {
     BookingRepository bookingRepository;
     BookingPartnerRepository bookingPartnerRepository;
     BookingMapper bookingMapper;
+    NotificationService notificationService;
+    DistrictRepository districtRepository;
+    DistrictMapper districtMapper;
 
     @Override
     public BookingResponse claimBooking(Long partnerId, Long bookingId) {
@@ -75,6 +87,9 @@ public class PartnerServiceImpl implements PartnerService {
                 .build();
 
         bookingPartnerRepository.save(bookingPartner);
+
+        // Send notification to customer when partner claims booking
+        notificationService.sendBookingClaimedNotification(booking);
 
         return bookingMapper.toBookingResponse(booking);
     }
@@ -125,6 +140,9 @@ public class PartnerServiceImpl implements PartnerService {
         }
         booking = bookingRepository.save(booking);
 
+        // Send notification to customer when partner cancels claim
+        notificationService.sendPartnerCancelledClaimNotification(booking, partner);
+
         // TODO: Transaction integration points
         // - Deduct 'penalty' from partner's wallet if penalty > 0
         // - Example placeholder (disabled):
@@ -159,6 +177,9 @@ public class PartnerServiceImpl implements PartnerService {
 
         booking.setStatus(BookingStatus.IN_PROGRESS);
         booking = bookingRepository.save(booking);
+
+        // Send notification to customer when partner starts working
+        notificationService.sendBookingStartedNotification(booking);
 
         return bookingMapper.toBookingResponse(booking);
     }
@@ -199,6 +220,8 @@ public class PartnerServiceImpl implements PartnerService {
         if (completedPartners == totalPartners && totalPartners > 0) {
             booking.setStatus(BookingStatus.COMPLETED);
             booking = bookingRepository.save(booking);
+            // Send notification to customer when all partners complete the booking
+            notificationService.sendBookingCompletedNotification(booking);
         }
 
         return bookingMapper.toBookingResponse(booking);
@@ -233,5 +256,40 @@ public class PartnerServiceImpl implements PartnerService {
         }
 
         throw new AppException(ErrorCode.InvalidBookingStastusForStart);
+    }
+
+    @Override
+    public void registerDistricts(Long partnerId, RegisterDistrictsRequest request) {
+        Partner partner = partnerRepository.findById(partnerId)
+                .orElseThrow(() -> new AppException(ErrorCode.PartnerNotFound));
+
+        // Validate all district IDs exist
+        List<District> districts = districtRepository.findAllById(request.getDistrictIds());
+        
+        if (districts.size() != request.getDistrictIds().size()) {
+            throw new AppException(ErrorCode.BadRequest);
+        }
+
+        // Replace all existing districts with new ones
+        partner.getDistricts().clear();
+        partner.getDistricts().addAll(new HashSet<>(districts));
+        
+        partnerRepository.save(partner);
+    }
+
+    @Override
+    public List<DistrictResponse> getRegisteredDistricts(Long partnerId) {
+        Partner partner = partnerRepository.findById(partnerId)
+                .orElseThrow(() -> new AppException(ErrorCode.PartnerNotFound));
+
+        return partner.getDistricts().stream()
+                .map(districtMapper::toDistrictResponse)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<DistrictResponse> getAllDistricts() {
+        List<District> districts = districtRepository.findAll();
+        return districtMapper.toDistrictResponseList(districts);
     }
 }
