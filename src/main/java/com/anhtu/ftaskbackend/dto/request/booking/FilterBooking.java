@@ -7,6 +7,7 @@ import lombok.experimental.FieldDefaults;
 import org.springframework.format.annotation.DateTimeFormat;
 
 import java.time.OffsetDateTime;
+import java.util.List;
 
 @Getter
 @Setter
@@ -20,7 +21,7 @@ public class FilterBooking {
     int page = 1;
     @Builder.Default
     int size = 3;
-    BookingStatus status;
+    List<BookingStatus> statuses;
     @Schema(type = "string", format = "date-time", example = "2025-10-30T23:59:59+07:00")
     @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
     OffsetDateTime fromDate;

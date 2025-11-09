@@ -27,8 +27,9 @@ public class BookingSpecification {
                     : null;
             List<Predicate> predicates = new ArrayList<>();
 
-            if (params.getStatus() != null)
-                predicates.add(cb.equal(root.get("status"), params.getStatus()));
+            if (params.getStatuses() != null && !params.getStatuses().isEmpty()) {
+                predicates.add(root.get("status").in(params.getStatuses()));
+            }
 
             if (from != null)
                 predicates.add(cb.greaterThanOrEqualTo(root.get("startAt"), from));
