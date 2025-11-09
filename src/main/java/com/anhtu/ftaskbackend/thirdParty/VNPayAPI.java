@@ -28,7 +28,7 @@ public class VNPayAPI {
     @Value("${vnpay.return}")
     private String returnUrl;
 
-    public Map<String, Object> createPayment(Double amount, String info, String type) {
+    public Map<String, Object> createPayment(Double amount, String info, String type, String callbackUrl) {
         try {
             String vnp_Version = "2.1.0";
             String vnp_Command = "pay";
@@ -47,7 +47,7 @@ public class VNPayAPI {
             vnp_Params.put("vnp_OrderInfo", info);
             vnp_Params.put("vnp_OrderType", type);
             vnp_Params.put("vnp_Locale", "vn");
-            vnp_Params.put("vnp_ReturnUrl", returnUrl);
+            vnp_Params.put("vnp_ReturnUrl", callbackUrl);
             vnp_Params.put("vnp_IpAddr", vnp_IpAddr);
 
             ZonedDateTime now = ZonedDateTime.now(ZoneId.of("Asia/Ho_Chi_Minh"));

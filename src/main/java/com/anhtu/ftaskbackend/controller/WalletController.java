@@ -29,11 +29,11 @@ public class WalletController {
     WalletService walletService;
 
     @PostMapping("/top-up")
-    public ApiResponse<Map<String, Object>> topUp(@RequestParam Double amount) {
+    public ApiResponse<Map<String, Object>> topUp(@RequestParam Double amount, @RequestParam String callbackUrl) {
         String info = "User_" + JWTHelper.getCurrentUserId() + "_type_TOPUP_amount_" + amount;
         return ApiResponse.<Map<String, Object>>builder()
                 .message("Top up wallet successful")
-                .result(vnPayAPI.createPayment(amount, info, TransactionType.TOP_UP.toString()))
+                .result(vnPayAPI.createPayment(amount, info, TransactionType.TOP_UP.toString(), callbackUrl))
                 .build();
     }
 
