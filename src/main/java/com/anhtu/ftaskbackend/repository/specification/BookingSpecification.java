@@ -2,8 +2,10 @@ package com.anhtu.ftaskbackend.repository.specification;
 
 import com.anhtu.ftaskbackend.dto.request.booking.FilterBooking;
 import com.anhtu.ftaskbackend.entity.Booking;
+import com.anhtu.ftaskbackend.entity.BookingPartner;
 import com.anhtu.ftaskbackend.enums.BookingStatus;
 import jakarta.persistence.criteria.Expression;
+import jakarta.persistence.criteria.Join;
 import jakarta.persistence.criteria.Predicate;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.jpa.domain.Specification;
@@ -51,6 +53,15 @@ public class BookingSpecification {
                 predicates.add(cb.like(cb.lower(fullAddress),
                         "%" + params.getAddress().toLowerCase() + "%"));
             }
+            if (params.getCustomerId() != null) {
+                predicates.add(cb.equal(root.get("customerId"), params.getCustomerId()));
+            }
+
+            if (params.getPartnerId() != null) {
+                Join<Booking, BookingPartner> bookingPartnerJoin = root.join("partners");
+                predicates.add(cb.equal(bookingPartnerJoin.get("partner").get("id"), params.getPartnerId()));
+            }
+
             return cb.and(predicates.toArray(new Predicate[0]));
         };
     }
