@@ -30,4 +30,6 @@ public class FilterBooking {
     Double minPrice;
     Double maxPrice;
     String address;
+    Long customerId;
+    Long partnerId;
 }

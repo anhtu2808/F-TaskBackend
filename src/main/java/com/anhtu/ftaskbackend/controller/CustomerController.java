@@ -36,15 +36,5 @@ public class CustomerController {
                 .result(responses)
                 .build();
     }
-
-    @GetMapping("/bookings")
-    public ApiResponse<Page<BookingResponse>> getAllBookingByCustomer(@ParameterObject FilterBooking params) {
-        Long customerId = JWTHelper.getCurrentCustomerId();
-        return ApiResponse.<Page<BookingResponse>>builder()
-                .code(200)
-                .message("Get all customer bookings")
-                .result(bookingService.getAllCustomerBookings(customerId, params))
-                .build();
-    }
-
+    
 }
