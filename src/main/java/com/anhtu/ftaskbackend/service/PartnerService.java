@@ -1,7 +1,11 @@
 package com.anhtu.ftaskbackend.service;
 
 
+import com.anhtu.ftaskbackend.dto.request.partner.RegisterDistrictsRequest;
 import com.anhtu.ftaskbackend.dto.response.booking.BookingResponse;
+import com.anhtu.ftaskbackend.dto.response.district.DistrictResponse;
+
+import java.util.List;
 
 public interface PartnerService {
 
@@ -45,4 +49,27 @@ public interface PartnerService {
      * @return BookingResponse với thông tin booking đã cập nhật
      */
     BookingResponse completeBooking(Long partnerId, Long bookingId);
+
+    /**
+     * Partner đăng ký/cập nhật danh sách quận hoạt động
+     *
+     * @param partnerId ID partner (từ token)
+     * @param request Danh sách district IDs cần đăng ký
+     */
+    void registerDistricts(Long partnerId, RegisterDistrictsRequest request);
+
+    /**
+     * Lấy danh sách quận đã đăng ký của partner
+     *
+     * @param partnerId ID partner (từ token)
+     * @return Danh sách DistrictResponse
+     */
+    List<DistrictResponse> getRegisteredDistricts(Long partnerId);
+
+    /**
+     * Lấy tất cả các quận có sẵn để partner chọn
+     *
+     * @return Danh sách tất cả DistrictResponse
+     */
+    List<DistrictResponse> getAllDistricts();
 }
