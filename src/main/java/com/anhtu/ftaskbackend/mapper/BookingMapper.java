@@ -14,6 +14,8 @@ import org.mapstruct.Mapping;
 @Mapper(componentModel = "spring", uses = {CustomerMapper.class, AddressMapper.class, ServiceVariantMapper.class, BookingPartnerMapper.class})
 public interface BookingMapper {
 
+    @Mapping(target = "numberOfJoinedPartner",
+            expression = "java(booking.getPartners() == null ? 0 : booking.getPartners().size())")
     BookingResponse toBookingResponse(Booking booking);
 
 }
