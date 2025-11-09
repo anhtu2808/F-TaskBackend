@@ -26,7 +26,7 @@ public class TransferFundsForCompleteBookingTask {
     private final BookingPartnerRepository bookingPartnerRepository;
     private final WalletService walletService;
 
-    @Scheduled(fixedRate = 5000)
+    @Scheduled(fixedRate = 60000)
     public void transferFundsForCompleteBooking() {
         LocalDateTime now = LocalDateTime.now();
         List<Booking> bookings = bookingRepository.findBookingByStatus(BookingStatus.COMPLETED);
