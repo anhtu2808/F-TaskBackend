@@ -36,5 +36,5 @@ public class CustomerController {
                 .result(responses)
                 .build();
     }
-    
+
 }
