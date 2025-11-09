@@ -1,8 +1,12 @@
 package com.anhtu.ftaskbackend.service.impl;
 
 import com.anhtu.ftaskbackend.dto.request.partner.RegisterDistrictsRequest;
+import com.anhtu.ftaskbackend.dto.request.admin.AdminPartnerFilterRequest;
+import com.anhtu.ftaskbackend.dto.request.admin.AdminPartnerStatusUpdateRequest;
+import com.anhtu.ftaskbackend.dto.request.admin.AdminPartnerDistrictsRequest;
 import com.anhtu.ftaskbackend.dto.response.booking.BookingResponse;
 import com.anhtu.ftaskbackend.dto.response.district.DistrictResponse;
+import com.anhtu.ftaskbackend.dto.response.partner.PartnerResponse;
 import com.anhtu.ftaskbackend.dto.request.Wallet.AdjustWalletBalanceRequest;
 import com.anhtu.ftaskbackend.entity.Booking;
 import com.anhtu.ftaskbackend.entity.BookingPartner;
@@ -18,16 +22,21 @@ import com.anhtu.ftaskbackend.helper.JWTHelper;
 import com.anhtu.ftaskbackend.helper.QRTokenHelper;
 import com.anhtu.ftaskbackend.mapper.BookingMapper;
 import com.anhtu.ftaskbackend.mapper.DistrictMapper;
+import com.anhtu.ftaskbackend.mapper.PartnerMapper;
 import com.anhtu.ftaskbackend.repository.BookingPartnerRepository;
 import com.anhtu.ftaskbackend.repository.BookingRepository;
 import com.anhtu.ftaskbackend.repository.DistrictRepository;
 import com.anhtu.ftaskbackend.repository.PartnerRepository;
+import com.anhtu.ftaskbackend.repository.specification.AdminPartnerSpecification;
 import com.anhtu.ftaskbackend.service.NotificationService;
 import com.anhtu.ftaskbackend.service.PartnerService;
 import com.anhtu.ftaskbackend.service.WalletService;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.time.Duration;
@@ -52,6 +61,7 @@ public class PartnerServiceImpl implements PartnerService {
     NotificationService notificationService;
     DistrictRepository districtRepository;
     DistrictMapper districtMapper;
+    PartnerMapper partnerMapper;
     WalletService walletService;
     QRTokenHelper qrTokenHelper;
 
@@ -319,5 +329,68 @@ public class PartnerServiceImpl implements PartnerService {
     public List<DistrictResponse> getAllDistricts() {
         List<District> districts = districtRepository.findAll();
         return districtMapper.toDistrictResponseList(districts);
+    }
+
+    // Admin methods implementation
+    @Override
+    public Page<PartnerResponse> getAllPartnersForAdmin(AdminPartnerFilterRequest filter) {
+        var spec = AdminPartnerSpecification.filter(filter);
+        
+        // Create sort
+        Sort sort = Sort.by(
+            "desc".equalsIgnoreCase(filter.getSortDirection()) ? Sort.Direction.DESC : Sort.Direction.ASC,
+            filter.getSortBy()
+        );
+        
+        var pageable = PageRequest.of(filter.getPage(), filter.getSize(), sort);
+        return partnerRepository.findAll(spec, pageable)
+                .map(partnerMapper::toPartnerResponse);
+    }
+
+    @Override
+    public PartnerResponse adminGetPartnerById(Long partnerId) {
+        Partner partner = partnerRepository.findById(partnerId)
+                .orElseThrow(() -> new AppException(ErrorCode.PartnerNotFound));
+        return partnerMapper.toPartnerResponse(partner);
+    }
+
+    @Override
+    public void adminUpdatePartnerStatus(Long partnerId, AdminPartnerStatusUpdateRequest request) {
+        Partner partner = partnerRepository.findById(partnerId)
+                .orElseThrow(() -> new AppException(ErrorCode.PartnerNotFound));
+
+        partner.setIsAvailable(request.getIsAvailable());
+        partnerRepository.save(partner);
+    }
+
+    @Override
+    public void adminUpdatePartnerDistricts(Long partnerId, AdminPartnerDistrictsRequest request) {
+        Partner partner = partnerRepository.findById(partnerId)
+                .orElseThrow(() -> new AppException(ErrorCode.PartnerNotFound));
+
+        // Get districts by IDs
+        List<District> districts = districtRepository.findAllById(request.getDistrictIds());
+        if (districts.size() != request.getDistrictIds().size()) {
+            throw new AppException(ErrorCode.DistrictNotFound);
+        }
+
+        // Replace all existing districts with new ones
+        partner.getDistricts().clear();
+        partner.getDistricts().addAll(new HashSet<>(districts));
+        
+        partnerRepository.save(partner);
+    }
+
+    @Override
+    public Page<BookingResponse> adminGetPartnerBookings(Long partnerId, Integer page, Integer size) {
+        Partner partner = partnerRepository.findById(partnerId)
+                .orElseThrow(() -> new AppException(ErrorCode.PartnerNotFound));
+
+        var pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdAt"));
+        
+        // Find all bookings where this partner is involved
+        Page<BookingPartner> bookingPartners = bookingPartnerRepository.findByPartner(partner, pageable);
+        
+        return bookingPartners.map(bp -> bookingMapper.toBookingResponse(bp.getBooking()));
     }
 }

@@ -2,13 +2,14 @@ package com.anhtu.ftaskbackend.repository;
 
 import com.anhtu.ftaskbackend.entity.Partner;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import java.util.List;
 import java.util.Optional;
 
-public interface PartnerRepository extends JpaRepository<Partner, Long> {
+public interface PartnerRepository extends JpaRepository<Partner, Long>, JpaSpecificationExecutor<Partner> {
     
     @Query("SELECT DISTINCT p FROM Partner p JOIN FETCH p.districts d " +
            "WHERE (LOWER(d.name) LIKE LOWER(CONCAT('%', :district, '%')) " +

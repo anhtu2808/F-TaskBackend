@@ -94,4 +94,14 @@ public interface NotificationService {
      * Gửi notification cho customer khi booking sắp tới giờ làm nhưng chưa đủ partner
      */
     void sendInsufficientPartnersNotification(Booking booking);
+
+    /**
+     * Gửi notification khi admin cập nhật trạng thái booking
+     */
+    void sendBookingStatusUpdateNotification(Booking booking, String reason);
+
+    /**
+     * Gửi notification khi admin hoàn tiền
+     */
+    void sendRefundNotification(Booking booking, Double refundAmount, String reason);
 }

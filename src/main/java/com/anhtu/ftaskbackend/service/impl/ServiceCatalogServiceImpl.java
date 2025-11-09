@@ -2,16 +2,21 @@ package com.anhtu.ftaskbackend.service.impl;
 
 
 import com.anhtu.ftaskbackend.dto.request.serviceccatalog.ServiceCatalogRequest;
+import com.anhtu.ftaskbackend.dto.request.admin.AdminServiceCatalogFilterRequest;
 import com.anhtu.ftaskbackend.dto.response.servicecatelog.ServiceCatalogResponse;
 import com.anhtu.ftaskbackend.entity.ServiceCatalog;
 import com.anhtu.ftaskbackend.exception.AppException;
 import com.anhtu.ftaskbackend.exception.ErrorCode;
 import com.anhtu.ftaskbackend.mapper.ServiceCatalogMapper;
 import com.anhtu.ftaskbackend.repository.ServiceCatalogRepository;
+import com.anhtu.ftaskbackend.repository.specification.AdminServiceCatalogSpecification;
 import com.anhtu.ftaskbackend.service.ServiceCatalogService;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -66,5 +71,21 @@ public class ServiceCatalogServiceImpl implements ServiceCatalogService {
         ServiceCatalog entity = repository.findById(id)
                                           .orElseThrow(() -> new IllegalArgumentException("Service Catalog not found with id: " + id));
         repository.delete(entity);
+    }
+
+    // Admin methods implementation
+    @Override
+    public Page<ServiceCatalogResponse> getAllForAdmin(AdminServiceCatalogFilterRequest filter) {
+        var spec = AdminServiceCatalogSpecification.filter(filter);
+        
+        // Create sort
+        Sort sort = Sort.by(
+            "desc".equalsIgnoreCase(filter.getSortDirection()) ? Sort.Direction.DESC : Sort.Direction.ASC,
+            filter.getSortBy()
+        );
+        
+        var pageable = PageRequest.of(filter.getPage(), filter.getSize(), sort);
+        return repository.findAll(spec, pageable)
+                .map(mapper::toResponse);
     }
 }

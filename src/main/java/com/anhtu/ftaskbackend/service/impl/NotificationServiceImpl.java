@@ -667,4 +667,108 @@ public class NotificationServiceImpl implements NotificationService {
         }
     }
 
+    @Override
+    public void sendBookingStatusUpdateNotification(Booking booking, String reason) {
+        User customer = booking.getCustomer().getUser();
+        String fcmToken = customer.getFcmToken();
+
+        if (fcmToken == null || fcmToken.isEmpty()) {
+            log.warn("Customer {} has no FCM token, skipping status update notification", customer.getId());
+            return;
+        }
+
+        String title = "Cập nhật trạng thái booking";
+        String message = String.format(
+                "Booking %s của bạn đã được cập nhật trạng thái thành %s. %s",
+                booking.getVariant().getServiceCatalog().getName(),
+                booking.getStatus().toString(),
+                reason != null ? "Lý do: " + reason : ""
+        );
+
+        Notification notification = Notification.builder()
+                .user(customer)
+                .booking(booking)
+                .type(NotificationType.BOOKING_STATUS_UPDATED)
+                .title(title)
+                .message(message)
+                .build();
+
+        notificationRepository.save(notification);
+
+        Map<String, String> data = new HashMap<>();
+        data.put("type", NotificationType.BOOKING_STATUS_UPDATED.name());
+        data.put("bookingId", String.valueOf(booking.getId()));
+        data.put("status", booking.getStatus().name());
+        data.put("notificationId", String.valueOf(notification.getId()));
+        if (reason != null) {
+            data.put("reason", reason);
+        }
+
+        try {
+            fcmService.sendNotificationToDevice(
+                    fcmToken,
+                    notification.getTitle(),
+                    notification.getMessage(),
+                    data
+            );
+            log.info("Sent booking status update notification to customer {} for booking {}", 
+                    customer.getId(), booking.getId());
+        } catch (Exception e) {
+            log.error("Failed to send status update notification to customer {}: {}", 
+                    customer.getId(), e.getMessage());
+        }
+    }
+
+    @Override
+    public void sendRefundNotification(Booking booking, Double refundAmount, String reason) {
+        User customer = booking.getCustomer().getUser();
+        String fcmToken = customer.getFcmToken();
+
+        if (fcmToken == null || fcmToken.isEmpty()) {
+            log.warn("Customer {} has no FCM token, skipping refund notification", customer.getId());
+            return;
+        }
+
+        String title = "Thông báo hoàn tiền";
+        String message = String.format(
+                "Bạn đã được hoàn tiền %.0f VND cho booking %s. %s",
+                refundAmount,
+                booking.getVariant().getServiceCatalog().getName(),
+                reason != null ? "Lý do: " + reason : ""
+        );
+
+        Notification notification = Notification.builder()
+                .user(customer)
+                .booking(booking)
+                .type(NotificationType.REFUND_PROCESSED)
+                .title(title)
+                .message(message)
+                .build();
+
+        notificationRepository.save(notification);
+
+        Map<String, String> data = new HashMap<>();
+        data.put("type", NotificationType.REFUND_PROCESSED.name());
+        data.put("bookingId", String.valueOf(booking.getId()));
+        data.put("refundAmount", String.valueOf(refundAmount));
+        data.put("notificationId", String.valueOf(notification.getId()));
+        if (reason != null) {
+            data.put("reason", reason);
+        }
+
+        try {
+            fcmService.sendNotificationToDevice(
+                    fcmToken,
+                    notification.getTitle(),
+                    notification.getMessage(),
+                    data
+            );
+            log.info("Sent refund notification to customer {} for booking {} with amount {}", 
+                    customer.getId(), booking.getId(), refundAmount);
+        } catch (Exception e) {
+            log.error("Failed to send refund notification to customer {}: {}", 
+                    customer.getId(), e.getMessage());
+        }
+    }
+
 }

@@ -2,8 +2,13 @@ package com.anhtu.ftaskbackend.service;
 
 
 import com.anhtu.ftaskbackend.dto.request.partner.RegisterDistrictsRequest;
+import com.anhtu.ftaskbackend.dto.request.admin.AdminPartnerFilterRequest;
+import com.anhtu.ftaskbackend.dto.request.admin.AdminPartnerStatusUpdateRequest;
+import com.anhtu.ftaskbackend.dto.request.admin.AdminPartnerDistrictsRequest;
 import com.anhtu.ftaskbackend.dto.response.booking.BookingResponse;
 import com.anhtu.ftaskbackend.dto.response.district.DistrictResponse;
+import com.anhtu.ftaskbackend.dto.response.partner.PartnerResponse;
+import org.springframework.data.domain.Page;
 
 import java.util.List;
 
@@ -80,4 +85,11 @@ public interface PartnerService {
      * @return Danh sách tất cả DistrictResponse
      */
     List<DistrictResponse> getAllDistricts();
+    
+    // Admin methods
+    Page<PartnerResponse> getAllPartnersForAdmin(AdminPartnerFilterRequest filter);
+    PartnerResponse adminGetPartnerById(Long partnerId);
+    void adminUpdatePartnerStatus(Long partnerId, AdminPartnerStatusUpdateRequest request);
+    void adminUpdatePartnerDistricts(Long partnerId, AdminPartnerDistrictsRequest request);
+    Page<BookingResponse> adminGetPartnerBookings(Long partnerId, Integer page, Integer size);
 }

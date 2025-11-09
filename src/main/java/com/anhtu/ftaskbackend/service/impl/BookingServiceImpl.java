@@ -5,8 +5,9 @@ import com.anhtu.ftaskbackend.dto.request.booking.CancelBookingRequest;
 import com.anhtu.ftaskbackend.dto.request.booking.CreateBookingRequest;
 import com.anhtu.ftaskbackend.dto.request.booking.FilterBooking;
 import com.anhtu.ftaskbackend.dto.request.booking.InsufficientPartnersResponseRequest;
-import com.anhtu.ftaskbackend.dto.request.transaction.CreateTransactionRequest;
-import com.anhtu.ftaskbackend.dto.response.booking.BookingPartnerResponse;
+import com.anhtu.ftaskbackend.dto.request.admin.AdminBookingFilterRequest;
+import com.anhtu.ftaskbackend.dto.request.admin.AdminBookingStatusUpdateRequest;
+import com.anhtu.ftaskbackend.dto.request.admin.AdminBookingRefundRequest;
 import com.anhtu.ftaskbackend.dto.response.booking.BookingResponse;
 import com.anhtu.ftaskbackend.dto.response.booking.GenerateQRCodeResponse;
 import com.anhtu.ftaskbackend.entity.*;
@@ -18,6 +19,7 @@ import com.anhtu.ftaskbackend.helper.QRTokenHelper;
 import com.anhtu.ftaskbackend.mapper.BookingMapper;
 import com.anhtu.ftaskbackend.repository.*;
 import com.anhtu.ftaskbackend.repository.specification.BookingSpecification;
+import com.anhtu.ftaskbackend.repository.specification.AdminBookingSpecification;
 import com.anhtu.ftaskbackend.service.BookingService;
 import com.anhtu.ftaskbackend.service.TransactionService;
 import com.anhtu.ftaskbackend.service.NotificationService;
@@ -27,12 +29,12 @@ import lombok.experimental.FieldDefaults;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.time.Duration;
 import java.util.List;
-import java.util.Map;
 
 @Service
 @FieldDefaults(level = AccessLevel.PRIVATE)
@@ -50,8 +52,6 @@ public class BookingServiceImpl implements BookingService {
     BookingMapper bookingMapper;
     @Autowired
     PaymentRepository paymentRepository;
-    @Autowired
-    TransactionService transactionService;
     @Autowired
     NotificationService notificationService;
     @Autowired
@@ -219,7 +219,6 @@ public class BookingServiceImpl implements BookingService {
 
     @Override
     public Page<BookingResponse> getAllCustomerBookings(Long customerId, FilterBooking params) {
-        var spec = BookingSpecification.filter(params);
         var pageable = PageRequest.of(params.getPage() - 1, params.getSize());
         return bookingRepository.findBookingByCustomerId(customerId, pageable)
                 .map(bookingMapper::toBookingResponse);
@@ -364,7 +363,6 @@ public class BookingServiceImpl implements BookingService {
         }
         
         // Validate booking is in valid status for QR code generation
-        BookingStatus status = booking.getStatus();
 //        Tạm thời bỏ validate đi để test QR code
 //        if (status == BookingStatus.FULLY_ACCEPTED) {
 //            // Allow QR code generation
@@ -385,5 +383,87 @@ public class BookingServiceImpl implements BookingService {
         return GenerateQRCodeResponse.builder()
                 .qrToken(qrToken)
                 .build();
+    }
+
+    // Admin methods implementation
+    @Override
+    public Page<BookingResponse> getAllBookingsForAdmin(AdminBookingFilterRequest filter) {
+        var spec = AdminBookingSpecification.filter(filter);
+        
+        // Create sort
+        Sort sort = Sort.by(
+            "desc".equalsIgnoreCase(filter.getSortDirection()) ? Sort.Direction.DESC : Sort.Direction.ASC,
+            filter.getSortBy()
+        );
+        
+        var pageable = PageRequest.of(filter.getPage(), filter.getSize(), sort);
+        return bookingRepository.findAll(spec, pageable)
+                .map(bookingMapper::toBookingResponse);
+    }
+
+    @Override
+    public void adminUpdateBookingStatus(Long bookingId, AdminBookingStatusUpdateRequest request) {
+        Booking booking = bookingRepository.findById(bookingId)
+                .orElseThrow(() -> new AppException(ErrorCode.BookingNotFound));
+
+        // Update status
+        booking.setStatus(request.getStatus());
+        if (request.getReason() != null && !request.getReason().isBlank()) {
+            booking.setCancelReason(request.getReason());
+        }
+        
+        bookingRepository.save(booking);
+
+        // Send notification about status change
+        notificationService.sendBookingStatusUpdateNotification(booking, request.getReason());
+    }
+
+    @Override
+    public void adminCancelBooking(Long bookingId, AdminBookingStatusUpdateRequest request) {
+        Booking booking = bookingRepository.findById(bookingId)
+                .orElseThrow(() -> new AppException(ErrorCode.BookingNotFound));
+
+        // Idempotency: if already cancelled or completed, no-op
+        if (booking.getStatus() == BookingStatus.CANCELLED || booking.getStatus() == BookingStatus.COMPLETED) {
+            return;
+        }
+
+        // Admin cancellation - full refund to customer
+        Long ownerUserId = booking.getCustomer().getUser().getId();
+        walletService.adjustBalance(ownerUserId, AdjustWalletBalanceRequest.builder()
+                .bookingId(booking.getId())
+                .type(TransactionType.REFUND)
+                .amount(booking.getTotalPrice())
+                .build());
+
+        // Update booking status
+        booking.setStatus(BookingStatus.CANCELLED);
+        booking.setCancelReason(request.getReason() != null ? request.getReason() : "Admin cancelled booking");
+        bookingRepository.save(booking);
+
+        // Send cancellation notification
+        notificationService.sendBookingCancelledNotification(booking, booking.getCancelReason());
+    }
+
+    @Override
+    public void adminRefundBooking(Long bookingId, AdminBookingRefundRequest request) {
+        Booking booking = bookingRepository.findById(bookingId)
+                .orElseThrow(() -> new AppException(ErrorCode.BookingNotFound));
+
+        // Validate refund amount doesn't exceed total price
+        if (request.getRefundAmount() > booking.getTotalPrice()) {
+            throw new AppException(ErrorCode.BadRequest);
+        }
+
+        // Process refund
+        Long ownerUserId = booking.getCustomer().getUser().getId();
+        walletService.adjustBalance(ownerUserId, AdjustWalletBalanceRequest.builder()
+                .bookingId(booking.getId())
+                .type(TransactionType.REFUND)
+                .amount(request.getRefundAmount())
+                .build());
+
+        // Send refund notification
+        notificationService.sendRefundNotification(booking, request.getRefundAmount(), request.getReason());
     }
 }

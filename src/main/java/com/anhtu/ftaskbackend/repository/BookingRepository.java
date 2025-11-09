@@ -2,10 +2,8 @@ package com.anhtu.ftaskbackend.repository;
 
 import com.anhtu.ftaskbackend.entity.Booking;
 import com.anhtu.ftaskbackend.enums.BookingStatus;
-import com.anhtu.ftaskbackend.repository.specification.BookingSpecification;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.jpa.domain.Specification;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
@@ -47,4 +45,18 @@ public interface BookingRepository extends JpaRepository<Booking, Long>, JpaSpec
                   AND p.status <> 'EARNED'
             """)
     List<Booking> findCompletedBookingsNotYetTransferred();
+
+    Long countByStatus(BookingStatus status);
+
+    List<Booking> findByStatus(BookingStatus status);
+
+    @Query(value = "SELECT DATE(b.created_at) as date, SUM(b.total_price) as revenue, SUM(b.platform_fee) as platformFee, COUNT(b.id) as bookingCount " +
+           "FROM booking b WHERE b.status = 'COMPLETED' AND b.created_at BETWEEN :fromDate AND :toDate " +
+           "GROUP BY DATE(b.created_at) ORDER BY DATE(b.created_at)", nativeQuery = true)
+    List<Object[]> findRevenueStatsByDateRange(@Param("fromDate") LocalDateTime fromDate, @Param("toDate") LocalDateTime toDate);
+
+    @Query(value = "SELECT DATE(b.created_at) as date, b.status, COUNT(b.id) as count " +
+           "FROM booking b WHERE b.created_at BETWEEN :fromDate AND :toDate " +
+           "GROUP BY DATE(b.created_at), b.status ORDER BY DATE(b.created_at)", nativeQuery = true)
+    List<Object[]> findBookingTrendByDateRange(@Param("fromDate") LocalDateTime fromDate, @Param("toDate") LocalDateTime toDate);
 }
