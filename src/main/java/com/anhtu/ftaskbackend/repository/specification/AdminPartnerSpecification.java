@@ -53,10 +53,10 @@ public class AdminPartnerSpecification {
 
             // Created date range filter
             if (params.getCreatedFrom() != null) {
-                predicates.add(cb.greaterThanOrEqualTo(root.get("createdAt"), params.getCreatedFrom()));
+                predicates.add(cb.greaterThanOrEqualTo(root.get("createAt"), params.getCreatedFrom()));
             }
             if (params.getCreatedTo() != null) {
-                predicates.add(cb.lessThanOrEqualTo(root.get("createdAt"), params.getCreatedTo()));
+                predicates.add(cb.lessThanOrEqualTo(root.get("createAt"), params.getCreatedTo()));
             }
 
             return cb.and(predicates.toArray(new Predicate[0]));

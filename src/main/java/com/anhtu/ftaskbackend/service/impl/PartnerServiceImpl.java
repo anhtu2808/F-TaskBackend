@@ -386,7 +386,7 @@ public class PartnerServiceImpl implements PartnerService {
         Partner partner = partnerRepository.findById(partnerId)
                 .orElseThrow(() -> new AppException(ErrorCode.PartnerNotFound));
 
-        var pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdAt"));
+        var pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createAt"));
         
         // Find all bookings where this partner is involved
         Page<BookingPartner> bookingPartners = bookingPartnerRepository.findByPartner(partner, pageable);
