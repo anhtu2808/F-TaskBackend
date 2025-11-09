@@ -31,16 +31,16 @@ public class PaymentController {
     BookingService bookingService;
 
     @PostMapping("/pay-for-booking")
-    public ApiResponse<Map<String, Object>> payForBooking(@RequestParam Long bookingId) {
+    public ApiResponse<Map<String, Object>> payForBooking(@RequestParam Long bookingId, @RequestParam String callbackUrl) {
         BookingResponse bookingResponse = bookingService.getBookingById(bookingId);
         String info = "User_" + JWTHelper.getCurrentUserId() + "_type_PAYMENT_amount_" + bookingResponse.getTotalPrice() + "_booking_" + bookingId;
         return ApiResponse.<Map<String, Object>>builder()
                 .message("Withdrawal wallet successful")
-                .result(vnPayAPI.createPayment(bookingResponse.getTotalPrice(), info, TransactionType.ADJUSTMENT.toString()))
+                .result(vnPayAPI.createPayment(bookingResponse.getTotalPrice(), info, TransactionType.ADJUSTMENT.toString(), callbackUrl))
                 .build();
     }
 
-    @GetMapping("/vnpay-return")
+    @GetMapping("/confirm")
     public ApiResponse<Void> vnpayReturn(@RequestParam(name = "vnp_OrderInfo") String vnp_OrderInfo,
                                          @RequestParam(name = "vnp_ResponseCode") String vnp_ResponseCode,
                                          @RequestParam(name = "vnp_TransactionStatus") String vnp_TransactionStatus) {

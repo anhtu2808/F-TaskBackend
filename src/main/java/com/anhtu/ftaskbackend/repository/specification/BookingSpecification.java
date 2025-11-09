@@ -54,7 +54,7 @@ public class BookingSpecification {
                         "%" + params.getAddress().toLowerCase() + "%"));
             }
             if (params.getCustomerId() != null) {
-                predicates.add(cb.equal(root.get("customerId"), params.getCustomerId()));
+                predicates.add(cb.equal(root.get("customer").get("id"), params.getCustomerId()));
             }
 
             if (params.getPartnerId() != null) {
