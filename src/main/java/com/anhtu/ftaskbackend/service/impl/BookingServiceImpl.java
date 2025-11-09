@@ -102,7 +102,9 @@ public class BookingServiceImpl implements BookingService {
             payment.setStatus(PaymentStatus.SUCCESS);
         }
         paymentRepository.save(payment);
-        return bookingMapper.toBookingResponse(booking);
+        BookingResponse response = bookingMapper.toBookingResponse(booking);
+        response.setMethod(request.getMethod());
+        return response;
     }
 
     @Override
