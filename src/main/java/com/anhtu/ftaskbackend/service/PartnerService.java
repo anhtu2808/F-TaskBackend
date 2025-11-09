@@ -40,6 +40,14 @@ public interface PartnerService {
     BookingResponse startBooking(Long partnerId, Long bookingId);
 
     /**
+     * Partner bắt đầu thực hiện booking bằng QR code token
+     *
+     * @param qrToken JWT token từ QR code
+     * @return BookingResponse với thông tin booking đã cập nhật
+     */
+    BookingResponse startBookingByQR(String qrToken);
+
+    /**
      * Partner hoàn tất công việc của booking (đã start trước đó).
      * - Chỉ cho phép khi partner đang ở trạng thái WORKING.
      * - Khi tất cả partner của booking hoàn thành, booking chuyển sang COMPLETED.

@@ -14,6 +14,8 @@ import com.anhtu.ftaskbackend.enums.BookingStatus;
 import com.anhtu.ftaskbackend.enums.TransactionType;
 import com.anhtu.ftaskbackend.exception.AppException;
 import com.anhtu.ftaskbackend.exception.ErrorCode;
+import com.anhtu.ftaskbackend.helper.JWTHelper;
+import com.anhtu.ftaskbackend.helper.QRTokenHelper;
 import com.anhtu.ftaskbackend.mapper.BookingMapper;
 import com.anhtu.ftaskbackend.mapper.DistrictMapper;
 import com.anhtu.ftaskbackend.repository.BookingPartnerRepository;
@@ -51,6 +53,7 @@ public class PartnerServiceImpl implements PartnerService {
     DistrictRepository districtRepository;
     DistrictMapper districtMapper;
     WalletService walletService;
+    QRTokenHelper qrTokenHelper;
 
     @Override
     public BookingResponse claimBooking(Long partnerId, Long bookingId) {
@@ -195,6 +198,18 @@ public class PartnerServiceImpl implements PartnerService {
         notificationService.sendBookingStartedNotification(booking);
 
         return bookingMapper.toBookingResponse(booking);
+    }
+
+    @Override
+    public BookingResponse startBookingByQR(String qrToken) {
+        // Verify QR token and extract bookingId
+        Long bookingId = qrTokenHelper.verifyQRToken(qrToken);
+        
+        // Get current authenticated partner from JWT
+        Long partnerId = JWTHelper.getCurrentPartnerId();
+        
+        // Reuse existing startBooking logic (includes all validations)
+        return startBooking(partnerId, bookingId);
     }
 
     @Override
