@@ -10,9 +10,9 @@ import java.util.Optional;
 
 public interface PartnerRepository extends JpaRepository<Partner, Long> {
     
-    @Query("SELECT DISTINCT p FROM Partner p JOIN p.districts d " +
-           "WHERE (LOWER(d) LIKE LOWER(CONCAT('%', :district, '%')) " +
-           "OR LOWER(:district) LIKE LOWER(CONCAT('%', d, '%'))) " +
+    @Query("SELECT DISTINCT p FROM Partner p JOIN FETCH p.districts d " +
+           "WHERE (LOWER(d.name) LIKE LOWER(CONCAT('%', :district, '%')) " +
+           "OR LOWER(:district) LIKE LOWER(CONCAT('%', d.name, '%'))) " +
            "AND p.isAvailable = true")
     List<Partner> findAvailablePartnersByDistrict(@Param("district") String district);
 

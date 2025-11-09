@@ -7,8 +7,8 @@ import lombok.experimental.FieldDefaults;
 import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.SQLRestriction;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 
 @Getter
 @Setter
@@ -41,10 +41,13 @@ public class Partner extends AbstractAuditingEntity {
     @Column(name = "is_available")
     Boolean isAvailable = true;
 
-    @ElementCollection
-    @CollectionTable(name = "partner_districts", joinColumns = @JoinColumn(name = "partner_id"))
-    @Column(name = "district_name")
+    @ManyToMany
+    @JoinTable(
+            name = "partner_district",
+            joinColumns = @JoinColumn(name = "partner_id"),
+            inverseJoinColumns = @JoinColumn(name = "district_id")
+    )
     @Builder.Default
-    List<String> districts = new ArrayList<>();
+    Set<District> districts = new HashSet<>();
 
 }
