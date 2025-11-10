@@ -6,6 +6,7 @@ import com.anhtu.ftaskbackend.dto.request.transaction.CreateTransactionRequest;
 import com.anhtu.ftaskbackend.dto.response.payment.PaymentResponse;
 import com.anhtu.ftaskbackend.entity.Payment;
 import com.anhtu.ftaskbackend.entity.User;
+import com.anhtu.ftaskbackend.enums.BookingStatus;
 import com.anhtu.ftaskbackend.enums.PaymentStatus;
 import com.anhtu.ftaskbackend.enums.TransactionType;
 import com.anhtu.ftaskbackend.exception.AppException;
@@ -102,6 +103,8 @@ public class PaymentServiceImpl implements PaymentService {
                         notificationService.sendPaymentSuccessNotification(user, amount, "PAYMENT", bookingId);
                         // Also send booking created notification if payment is for booking
                         bookingRepository.findById(bookingId).ifPresent(booking -> {
+                            booking.setStatus(BookingStatus.PENDING);
+                            bookingRepository.save(booking);
                             notificationService.sendBookingCreatedNotification(booking);
                         });
                     }
