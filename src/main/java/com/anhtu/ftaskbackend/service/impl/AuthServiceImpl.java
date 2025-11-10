@@ -56,22 +56,8 @@ public class AuthServiceImpl implements AuthService {
         if (request.getPhone().length() < 10 || !request.getPhone().startsWith("0")) {
             throw new AppException(ErrorCode.InvalidPhoneNumber);
         }
-//        if(request.getEmail() != null){
-//            if(userRepository.existsByEmail(request.getEmail())){
-//                throw new AppException(ErrorCode.DuplicatedEmail);
-//            }
-//        }
-//        User user = userRepository.findByPhone(request.getPhone()).orElse(null);
-//        if (user == null) {
-//            user = User.builder()
-//                    .phone(request.getPhone())
-//                    .password(passwordEncoder.encode(request.getPhone()))  //password bây giờ là sđt để tránh lỗi
-//                    .wallet(walletRepository.save(new Wallet()))
-//                    .isActive(false)
-//                    .build();
-//            userRepository.save(user);
-//        }
-//        otpService.sendSms(request.getPhone(), OtpType.REGISTER);
+        if (request.getPhone().equals("0845448919"))
+            otpService.sendSms(request.getPhone(), OtpType.REGISTER);
     }
 
     @Override
@@ -91,59 +77,89 @@ public class AuthServiceImpl implements AuthService {
 
     @Override
     public LoginResponse verify(VerifyOtpRequest request) {
-//        otpService.verifyOtp(request.getOtp());
-//        if (user != userRepository.findByPhone(request.getPhone())
-//                .orElseThrow(() -> new AppException(ErrorCode.UserNotFoundByPhone))
-//        )
-//            throw new AppException(ErrorCode.UserNotMatch);
-        if (!request.getOtp().equals("123456"))
-            throw new AppException(ErrorCode.OtpIsInvalid);
-//        boolean isNewUser = false;
-        boolean isNewUser = true;
-        User user = userRepository.findByPhone(request.getPhone()).orElse(null);
-        if (user != null) {
-            isNewUser = false;
-            user.setIsActive(true);
-            userRepository.save(user);
-        }
-//        if (!user.getIsActive()) {
-//        User user = userRepository.findByPhone(request.getPhone()).orElse(null);
-        if (user == null) {
-//            isNewUser = true;
-            user = User.builder()
-                    .phone(request.getPhone())
-                    .password(passwordEncoder.encode(request.getPhone()))  //password bây giờ là sđt để tránh lỗi
-                    .wallet(walletRepository.save(new Wallet()))
-                    .isActive(true)
-                    .build();
-            user.setIsActive(true);
-            user.setRole(roleRepository.findByName(request.getRole())
-                    .orElseThrow(() -> new AppException(ErrorCode.RoleNotFoundByName)));
-            switch (request.getRole()) {
-                case "CUSTOMER" -> {
-                    Customer customer = Customer.builder()
-                            .user(user)
-                            .build();
-                    user.setCustomer(customer);
-                    userRepository.save(user);
-                }
-                case "PARTNER" -> {
-                    Partner partner = Partner.builder()
-                            .user(user)
-                            .isAvailable(true)
+        if (request.getPhone().equals("0845448919")) {
+            otpService.verifyOtp(request.getOtp());
+            boolean isNewUser = false;
+            User user = userRepository.findByPhone(request.getPhone()).orElse(null);
+            if (user == null) {
+                isNewUser = true;
+                user = User.builder()
+                        .phone(request.getPhone())
+                        .password(passwordEncoder.encode(request.getPhone()))  //password bây giờ là sđt để tránh lỗi
+                        .wallet(walletRepository.save(new Wallet()))
+                        .isActive(true)
+                        .build();
+                user.setRole(roleRepository.findByName(request.getRole())
+                        .orElseThrow(() -> new AppException(ErrorCode.RoleNotFoundByName)));
+                switch (request.getRole()) {
+                    case "CUSTOMER" -> {
+                        Customer customer = Customer.builder()
+                                .user(user)
+                                .build();
+                        user.setCustomer(customer);
+                        userRepository.save(user);
+                    }
+                    case "PARTNER" -> {
+                        Partner partner = Partner.builder()
+                                .user(user)
+                                .isAvailable(true)
 //                            .districtIdsJson()
-                            .build();
-                    user.setPartner(partner);
-                    userRepository.save(user);
+                                .build();
+                        user.setPartner(partner);
+                        userRepository.save(user);
+                    }
                 }
-            }
 
+            }
+            return LoginResponse.builder()
+                    .accessToken(generateToken(user))
+                    .userId(user.getId())
+                    .isNewUser(isNewUser)
+                    .build();
+        } else {
+            if (!request.getOtp().equals("123456"))
+                throw new AppException(ErrorCode.OtpIsInvalid);
+            boolean isNewUser = true;
+            User user = userRepository.findByPhone(request.getPhone()).orElse(null);
+            if (user != null) {
+                isNewUser = false;
+                user.setIsActive(true);
+                userRepository.save(user);
+            }
+            if (user == null) {
+                user = User.builder()
+                        .phone(request.getPhone())
+                        .password(passwordEncoder.encode(request.getPhone()))  //password bây giờ là sđt để tránh lỗi
+                        .wallet(walletRepository.save(new Wallet()))
+                        .build();
+                user.setRole(roleRepository.findByName(request.getRole())
+                        .orElseThrow(() -> new AppException(ErrorCode.RoleNotFoundByName)));
+                switch (request.getRole()) {
+                    case "CUSTOMER" -> {
+                        Customer customer = Customer.builder()
+                                .user(user)
+                                .build();
+                        user.setCustomer(customer);
+                        userRepository.save(user);
+                    }
+                    case "PARTNER" -> {
+                        Partner partner = Partner.builder()
+                                .user(user)
+                                .isAvailable(true)
+//                            .districtIdsJson()
+                                .build();
+                        user.setPartner(partner);
+                        userRepository.save(user);
+                    }
+                }
+
+            }
+            return LoginResponse.builder()
+                    .accessToken(generateToken(user))
+                    .userId(user.getId())
+                    .isNewUser(isNewUser)
+                    .build();
         }
-        return LoginResponse.builder()
-                .accessToken(generateToken(user))
-                .userId(user.getId())
-                .isNewUser(isNewUser)
-                .build();
     }
 
     private String generateToken(User user) {
