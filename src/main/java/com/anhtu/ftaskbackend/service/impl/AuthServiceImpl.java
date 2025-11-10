@@ -5,6 +5,7 @@ import com.anhtu.ftaskbackend.dto.request.auth.RegisterRequest;
 import com.anhtu.ftaskbackend.dto.request.auth.VerifyOtpRequest;
 import com.anhtu.ftaskbackend.dto.response.auth.LoginResponse;
 import com.anhtu.ftaskbackend.entity.*;
+import com.anhtu.ftaskbackend.enums.OtpType;
 import com.anhtu.ftaskbackend.exception.AppException;
 import com.anhtu.ftaskbackend.exception.ErrorCode;
 import com.anhtu.ftaskbackend.mapper.UserMapper;
@@ -60,7 +61,16 @@ public class AuthServiceImpl implements AuthService {
 //                throw new AppException(ErrorCode.DuplicatedEmail);
 //            }
 //        }
-//        otpService.sendSms(user, OtpType.REGISTER);
+        User user = userRepository.findByPhone(request.getPhone()).orElse(null);
+        if (user == null) {
+            user = User.builder()
+                    .phone(request.getPhone())
+                    .password(passwordEncoder.encode(request.getPhone()))  //password bây giờ là sđt để tránh lỗi
+                    .wallet(walletRepository.save(new Wallet()))
+                    .isActive(false)
+                    .build();
+        }
+        otpService.sendSms(user, OtpType.REGISTER);
     }
 
     @Override
@@ -80,26 +90,29 @@ public class AuthServiceImpl implements AuthService {
 
     @Override
     public LoginResponse verify(VerifyOtpRequest request) {
-//        User user = otpService.verifyOtp(verifyOtpRequest.getOtp());
-//        if (user != userRepository.findByPhone(verifyOtpRequest.getPhone())
-//                .orElseThrow(() -> new AppException(ErrorCode.UserNotFoundByPhone))
-//        )
-//            throw new AppException(ErrorCode.UserNotMatch);
-        if (!request.getOtp().equals("123456"))
-            throw new AppException(ErrorCode.OtpIsInvalid);
-        boolean isNewUser = true;
-        User user = userRepository.findByPhone(request.getPhone()).orElse(null);
-        if (user != null) {
-            isNewUser = false;
+        User user = otpService.verifyOtp(request.getOtp());
+        if (user != userRepository.findByPhone(request.getPhone())
+                .orElseThrow(() -> new AppException(ErrorCode.UserNotFoundByPhone))
+        )
+            throw new AppException(ErrorCode.UserNotMatch);
+//        if (!request.getOtp().equals("123456"))
+//            throw new AppException(ErrorCode.OtpIsInvalid);
+//        boolean isNewUser = true;
+//        User user = userRepository.findByPhone(request.getPhone()).orElse(null);
+//        if (user != null) {
+//            isNewUser = false;
+//            user.setIsActive(true);
+//            userRepository.save(user);
+//        }
+        if (!user.getIsActive()) {
+//        if (isNewUser) {
+//            user = User.builder()
+//                    .phone(request.getPhone())
+//                    .password(passwordEncoder.encode(request.getPhone()))  //password bây giờ là sđt để tránh lỗi
+//                    .wallet(walletRepository.save(new Wallet()))
+//                    .isActive(true)
+//                    .build();
             user.setIsActive(true);
-            userRepository.save(user);
-        }
-        if (isNewUser) {
-            user = User.builder()
-                    .phone(request.getPhone())
-                    .password(passwordEncoder.encode(request.getPhone()))  //password bây giờ là sđt để tránh lỗi
-                    .wallet(walletRepository.save(new Wallet()))
-                    .build();
             user.setRole(roleRepository.findByName(request.getRole())
                     .orElseThrow(() -> new AppException(ErrorCode.RoleNotFoundByName)));
             switch (request.getRole()) {
@@ -125,7 +138,7 @@ public class AuthServiceImpl implements AuthService {
         return LoginResponse.builder()
                 .accessToken(generateToken(user))
                 .userId(user.getId())
-                .isNewUser(isNewUser)
+                .isNewUser(user.getIsActive())
                 .build();
     }
 
