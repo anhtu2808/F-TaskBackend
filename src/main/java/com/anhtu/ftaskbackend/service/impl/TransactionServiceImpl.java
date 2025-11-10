@@ -63,43 +63,43 @@ public class TransactionServiceImpl implements TransactionService {
 
     @NotNull
     private String getDescription(CreateTransactionRequest request) {
-        String description = "User: " + request.getUser().getId();
+        String description = "";
         switch (request.getType()) {
             case TOP_UP -> {
-                description += " vừa nạp "
+                description += "Bạn vừa nạp "
                         + request.getAmount()
                         + " VNĐ vào tài khoản.";
             }
             case EARNING -> {
-                description += " vừa nhận được "
+                description += "Bạn vừa nhận được "
                         + request.getAmount()
                         + " VNĐ vào tài khoản vì hoàn thành công việc.";
             }
             case FINE -> {
-                description += " vừa bị phạt "
+                description += "Bạn vừa bị phạt "
                         + request.getAmount()
                         + " VNĐ vì huỷ gói booking "
                         + request.getBookingId()
-                        + " trong khoảng 4 tiếng trước khi công việc bắt đầu.";
+                        + " trong khoảng 6 tiếng trước khi công việc bắt đầu.";
             }
             case PLATFORM_FEE -> {
-                description += " vừa bị thu phí nền tảng"
+                description += "Phí hoa hồng cho nền tảng"
                         + request.getAmount()
                         + " VNĐ.";
             }
             case WITHDRAWAL -> {
-                description += " vừa rút "
+                description += "Bạn vừa rút "
                         + request.getAmount()
                         + " VNĐ.";
             }
             case ADJUSTMENT -> {
-                description += " vừa thanh toán "
+                description += "Bạn vừa thanh toán "
                         + request.getAmount()
                         + " VNĐ cho booking "
                         + request.getBookingId() + ".";
             }
             case REFUND -> {
-                description += " vừa được hoàn "
+                description += "Bạn vừa được hoàn "
                         + request.getAmount() + " VNĐ ";
                 if (request.getUser().getId().equals(bookingRepository.findById(request.getBookingId())
                         .orElseThrow(() -> new AppException(ErrorCode.BookingNotFound)).getCustomer().getUser().getId()))
