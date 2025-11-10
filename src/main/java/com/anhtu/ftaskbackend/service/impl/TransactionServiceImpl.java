@@ -127,7 +127,7 @@ public class TransactionServiceImpl implements TransactionService {
 
     @Override
     public Page<TransactionResponse> getAllTransactions(int page, int size, TransactionType transactionType) {
-        var pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdAt"));
+        var pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createAt"));
         Page<Transaction> transactions;
 
         if (transactionType != null) {
@@ -141,6 +141,6 @@ public class TransactionServiceImpl implements TransactionService {
 
     @Override
     public Double getAllTotalFee() {
-        return transactionRepository.sumTransactionByType(TransactionType.PLATFORM_FEE);
+        return transactionRepository.sumAmountByTransactionType(TransactionType.PLATFORM_FEE);
     }
 }
