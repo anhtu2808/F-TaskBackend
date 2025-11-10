@@ -389,7 +389,7 @@ public class PartnerServiceImpl implements PartnerService {
         var pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createAt"));
         
         // Find all bookings where this partner is involved
-        Page<BookingPartner> bookingPartners = bookingPartnerRepository.findByPartner(partner, pageable);
+        Page<BookingPartner> bookingPartners = bookingPartnerRepository.findByPartner_Id(partnerId, pageable);
         
         return bookingPartners.map(bp -> bookingMapper.toBookingResponse(bp.getBooking()));
     }

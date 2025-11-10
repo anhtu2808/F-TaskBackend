@@ -21,7 +21,7 @@ public interface BookingPartnerRepository  extends JpaRepository<BookingPartner,
     long countByBookingAndStatusIn(Booking booking, List<BookingPartnerStatus> statuses);
     List<BookingPartner> findByBookingAndStatusIn(Booking booking, List<BookingPartnerStatus> statuses);
     List<BookingPartner> findByBooking_Id(Long id);
-    Page<BookingPartner> findByPartner(Partner partner, Pageable pageable);
+    Page<BookingPartner> findByPartner_Id(Long partnerId, Pageable pageable);
 
     @Query("""
         SELECT bp.booking.id
