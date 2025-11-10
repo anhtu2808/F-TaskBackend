@@ -241,6 +241,7 @@ public class PartnerServiceImpl implements PartnerService {
 
         // Cập nhật trạng thái partner thành COMPLETED
         bookingPartner.setStatus(BookingPartnerStatus.COMPLETED);
+
         bookingPartnerRepository.save(bookingPartner);
 
         // Kiểm tra xem tất cả partner đã hoàn thành chưa
@@ -257,6 +258,7 @@ public class PartnerServiceImpl implements PartnerService {
         // Nếu tất cả partner đã complete, chuyển booking sang COMPLETED
         if (completedPartners == totalPartners && totalPartners > 0) {
             booking.setStatus(BookingStatus.COMPLETED);
+            booking.setCompletedAt(LocalDateTime.now());
             booking = bookingRepository.save(booking);
             // Send notification to customer when all partners complete the booking
             notificationService.sendBookingCompletedNotification(booking);
