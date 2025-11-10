@@ -36,6 +36,9 @@ public class ServiceVariantServiceImpl implements ServiceVariantService {
 
     @Override
     public ServiceVariantResponse createServiceVariant(CreateServiceVariantRequest request) {
+        if (request.getIsMultiPartner() == null) {
+            request.setIsMultiPartner(false);
+        }
         if (request.getDurationHours() <= 0)
             throw new AppException(ErrorCode.InvalidDurationHours);
         if (request.getPricePerVariant() <= 0)
