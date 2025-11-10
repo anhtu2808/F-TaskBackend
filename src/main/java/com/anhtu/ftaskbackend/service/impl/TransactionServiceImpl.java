@@ -101,7 +101,7 @@ public class TransactionServiceImpl implements TransactionService {
                 description += " vừa được hoàn "
                         + request.getAmount() + " VNĐ ";
                 if (request.getUser().getId().equals(bookingRepository.findById(request.getBookingId())
-                        .orElseThrow(() -> new AppException(ErrorCode.BookingNotFound)).getId()))
+                        .orElseThrow(() -> new AppException(ErrorCode.BookingNotFound)).getCustomer().getUser().getId()))
                     description += request.getBookingId() + ".";
                 else
                     description += "vì khách hàng đã huỷ gói booking "
