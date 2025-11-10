@@ -64,17 +64,16 @@ public class OtpServiceImpl implements OtpService {
         this.sender = sender;
     }
 
-    public void sendSms(User user, OtpType type) {
+    public void sendSms(String phone, OtpType type) {
         String otp = String.format("%06d", new Random().nextInt(999999));
 
         otpRepository.save(Otp.builder()
                 .otpType(type)
                 .expiredAt(LocalDateTime.now().plusMinutes(5))
                 .otpCode(otp)
-                .user(user)
                 .build());
 
-        String phoneNumber = user.getPhone().replaceAll("[^0-9]", "");
+        String phoneNumber = phone.replaceAll("[^0-9]", "");
         if (phoneNumber.startsWith("0")) {
             phoneNumber = "84" + phoneNumber.substring(1);
         } else if (phoneNumber.startsWith("+84")) {
@@ -110,9 +109,9 @@ public class OtpServiceImpl implements OtpService {
             throw new AppException(ErrorCode.OtpIsExpired);
         otp.setIsUsed(true);
         otpRepository.save(otp);
-        if(otp.getUser() == null)
-            throw new AppException(ErrorCode.MissingUserByOtp);
-        return otp.getUser();
+//        if(otp.getUser() == null)
+//            throw new AppException(ErrorCode.MissingUserByOtp);
+        return null;
     }
 
 //    public void sendOtp(User user, OtpType type) {

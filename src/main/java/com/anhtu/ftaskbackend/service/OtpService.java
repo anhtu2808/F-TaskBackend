@@ -8,5 +8,5 @@ public interface OtpService {
 
 //    void sendOtp(User user, OtpType type);
     User verifyOtp(String otp);
-    void sendSms(User user, OtpType otpType);
+    void sendSms(String phone, OtpType otpType);
 }

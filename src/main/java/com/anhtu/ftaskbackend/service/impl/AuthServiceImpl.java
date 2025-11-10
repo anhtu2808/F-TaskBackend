@@ -71,7 +71,7 @@ public class AuthServiceImpl implements AuthService {
 //                    .build();
 //            userRepository.save(user);
 //        }
-//        otpService.sendSms(user, OtpType.REGISTER);
+//        otpService.sendSms(request.getPhone(), OtpType.REGISTER);
     }
 
     @Override
@@ -91,13 +91,14 @@ public class AuthServiceImpl implements AuthService {
 
     @Override
     public LoginResponse verify(VerifyOtpRequest request) {
-//        User user = otpService.verifyOtp(request.getOtp());
+//        otpService.verifyOtp(request.getOtp());
 //        if (user != userRepository.findByPhone(request.getPhone())
 //                .orElseThrow(() -> new AppException(ErrorCode.UserNotFoundByPhone))
 //        )
 //            throw new AppException(ErrorCode.UserNotMatch);
         if (!request.getOtp().equals("123456"))
             throw new AppException(ErrorCode.OtpIsInvalid);
+//        boolean isNewUser = false;
         boolean isNewUser = true;
         User user = userRepository.findByPhone(request.getPhone()).orElse(null);
         if (user != null) {
@@ -106,7 +107,9 @@ public class AuthServiceImpl implements AuthService {
             userRepository.save(user);
         }
 //        if (!user.getIsActive()) {
-        if (isNewUser) {
+//        User user = userRepository.findByPhone(request.getPhone()).orElse(null);
+        if (user == null) {
+//            isNewUser = true;
             user = User.builder()
                     .phone(request.getPhone())
                     .password(passwordEncoder.encode(request.getPhone()))  //password bây giờ là sđt để tránh lỗi
@@ -139,7 +142,7 @@ public class AuthServiceImpl implements AuthService {
         return LoginResponse.builder()
                 .accessToken(generateToken(user))
                 .userId(user.getId())
-                .isNewUser(user.getIsActive())
+                .isNewUser(isNewUser)
                 .build();
     }
 
