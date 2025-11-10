@@ -147,6 +147,12 @@ public class BookingServiceImpl implements BookingService {
             return;
         }
 
+        if (booking.getStatus() == BookingStatus.WAITING_FOR_PAYMENT) {
+            booking.setStatus(BookingStatus.CANCELLED);
+            bookingRepository.save(booking);
+            return;
+        }
+
         // Ownership guard: only booking owner (customer) can cancel
         Long ownerUserId = booking.getCustomer().getUser().getId();
         if (!ownerUserId.equals(currentUserId)) {
@@ -241,6 +247,12 @@ public class BookingServiceImpl implements BookingService {
             booking.getStatus() == BookingStatus.COMPLETED ||
             booking.getStatus() == BookingStatus.IN_PROGRESS) {
             throw new AppException(ErrorCode.BadRequest);
+        }
+
+        if (booking.getStatus() == BookingStatus.WAITING_FOR_PAYMENT){
+            booking.setStatus(BookingStatus.CANCELLED);
+            booking.setCancelReason("Khách hàng hủy do không đủ tiền");
+            bookingRepository.save(booking);
         }
 
         // Disallow if any partner has started working

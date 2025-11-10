@@ -36,6 +36,8 @@ public class TransactionServiceImpl implements TransactionService {
     BookingPartnerRepository bookingPartnerRepository;
     @Autowired
     TransactionMapper transactionMapper;
+    @Autowired
+    BookingRepository bookingRepository;
 
     @Override
     public Long createTransaction(CreateTransactionRequest request) {
@@ -97,9 +99,13 @@ public class TransactionServiceImpl implements TransactionService {
             }
             case REFUND -> {
                 description += " vừa được hoàn "
-                        + request.getAmount()
-                        + " VNĐ vì khách hàng đã huỷ gói booking "
-                        + request.getBookingId() + ".";
+                        + request.getAmount() + " VNĐ ";
+                if (request.getUser().getId().equals(bookingRepository.findById(request.getBookingId())
+                        .orElseThrow(() -> new AppException(ErrorCode.BookingNotFound)).getId()))
+                    description += request.getBookingId() + ".";
+                else
+                    description += "vì khách hàng đã huỷ gói booking "
+                            + request.getBookingId() + ".";
             }
         }
         description += " Số dư hiện tại: " + request.getBalanceAfter();
