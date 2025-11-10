@@ -52,6 +52,15 @@ public class BookingController {
                 .build();
     }
 
+    @GetMapping("/available/list")
+    public ApiResponse<Page<BookingResponse>> getAvailableBookings(@ParameterObject FilterBooking params){
+        return ApiResponse.<Page<BookingResponse>>builder()
+                .code(200)
+                .message("Get bookings successfully")
+                .result(bookingService.getAllAvailableBookings(params))
+                .build();
+    }
+
     @GetMapping("/{id}")
     @ResponseStatus(HttpStatus.OK)
     public ApiResponse<BookingResponse> getBooking(@PathVariable Long id){

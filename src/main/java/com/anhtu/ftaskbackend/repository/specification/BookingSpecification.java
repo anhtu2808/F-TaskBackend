@@ -62,6 +62,9 @@ public class BookingSpecification {
                 Join<Booking, BookingPartner> bookingPartnerJoin = root.join("partners");
                 predicates.add(cb.equal(bookingPartnerJoin.get("partner").get("id"), params.getPartnerId()));
             }
+            if (params.getJoinedBookings() != null && !params.getJoinedBookings().isEmpty()) {
+                predicates.add(cb.not(root.get("id").in(params.getJoinedBookings())));
+            }
 
             return cb.and(predicates.toArray(new Predicate[0]));
         };

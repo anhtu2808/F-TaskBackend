@@ -24,7 +24,7 @@ public interface BookingService {
     void handleInsufficientPartnersResponse(Long bookingId, InsufficientPartnersResponseRequest request);
     GenerateQRCodeResponse generateQRCode(Long bookingId);
     void autoCancelInsufficientPartnersBooking(Booking booking);
-    
+    Page<BookingResponse> getAllAvailableBookings(FilterBooking params);
     // Admin methods
     Page<BookingResponse> getAllBookingsForAdmin(AdminBookingFilterRequest filter);
     void adminUpdateBookingStatus(Long bookingId, AdminBookingStatusUpdateRequest request);

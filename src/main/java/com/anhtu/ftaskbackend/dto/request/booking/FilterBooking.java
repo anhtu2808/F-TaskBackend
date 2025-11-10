@@ -33,4 +33,5 @@ public class FilterBooking {
     String address;
     Long customerId;
     Long partnerId;
+    List<Long> joinedBookings;
 }

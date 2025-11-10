@@ -7,6 +7,8 @@ import com.anhtu.ftaskbackend.enums.BookingPartnerStatus;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
 import java.util.List;
 import java.util.Optional;
@@ -20,4 +22,16 @@ public interface BookingPartnerRepository  extends JpaRepository<BookingPartner,
     List<BookingPartner> findByBookingAndStatusIn(Booking booking, List<BookingPartnerStatus> statuses);
     List<BookingPartner> findByBooking_Id(Long id);
     Page<BookingPartner> findByPartner(Partner partner, Pageable pageable);
+
+    @Query("""
+        SELECT bp.booking.id
+        FROM BookingPartner bp
+        WHERE bp.partner.id = :partnerId
+          AND bp.status = :status
+    """)
+    List<Long> findBookingIdsByPartnerIdAndStatus(
+            @Param("partnerId") Long partnerId,
+            @Param("status") BookingPartnerStatus status
+    );
+
 }

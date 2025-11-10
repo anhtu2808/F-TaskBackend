@@ -349,6 +349,17 @@ public class BookingServiceImpl implements BookingService {
     }
 
     @Override
+    public Page<BookingResponse> getAllAvailableBookings(FilterBooking params) {
+        Long partnerId = JWTHelper.getCurrentPartnerId();
+        List<Long> joinedBookings = bookingPartnerRepository.findBookingIdsByPartnerIdAndStatus(partnerId, BookingPartnerStatus.JOINED);
+        params.setJoinedBookings(joinedBookings);
+        var spec = BookingSpecification.filter(params);
+        var pageable = PageRequest.of(params.getPage() - 1, params.getSize());
+        return bookingRepository.findAll(spec, pageable)
+                .map(bookingMapper::toBookingResponse);
+    }
+
+    @Override
     public GenerateQRCodeResponse generateQRCode(Long bookingId) {
         // Get current customer from JWT
         Long currentCustomerId = JWTHelper.getCurrentCustomerId();
