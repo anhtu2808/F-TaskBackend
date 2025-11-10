@@ -23,6 +23,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -122,5 +123,24 @@ public class TransactionServiceImpl implements TransactionService {
     @Override
     public TransactionResponse getTransactionById(Long transactionId) {
         return null;
+    }
+
+    @Override
+    public Page<TransactionResponse> getAllTransactions(int page, int size, TransactionType transactionType) {
+        var pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdAt"));
+        Page<Transaction> transactions;
+
+        if (transactionType != null) {
+            transactions = transactionRepository.findByType(transactionType, pageable);
+        } else {
+            transactions = transactionRepository.findAll(pageable);
+        }
+
+        return transactions.map(transactionMapper::toTransactionResponse);
+    }
+
+    @Override
+    public Double getAllTotalFee() {
+        return transactionRepository.sumTransactionByType(TransactionType.PLATFORM_FEE);
     }
 }
