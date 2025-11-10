@@ -30,7 +30,7 @@ public class AdminPartnerFilterRequest {
     // Pagination
     Integer page = 0;
     Integer size = 20;
-    String sortBy = "createdAt";
+    String sortBy = "createAt";
     String sortDirection = "desc";
     
 }
