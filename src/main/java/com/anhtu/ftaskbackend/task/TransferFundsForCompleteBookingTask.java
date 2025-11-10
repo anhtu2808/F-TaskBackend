@@ -35,7 +35,7 @@ public class TransferFundsForCompleteBookingTask {
         List<Booking> bookings = bookingRepository.findCompletedBookingsNotYetTransferred();
 
         for (Booking booking : bookings) {
-            if (now.isAfter(booking.getCompletedAt().plusHours(1))) {
+            if (now.isAfter(booking.getCompletedAt().plusMinutes(1))) {
                 List<BookingPartner> partners = bookingPartnerRepository.findByBooking_Id(booking.getId());
                 int numberOfPartners = partners.size();
                 for (BookingPartner partner : partners) {
