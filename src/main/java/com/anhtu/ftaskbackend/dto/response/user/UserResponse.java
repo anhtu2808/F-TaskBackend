@@ -22,5 +22,6 @@ public class UserResponse {
     String idCard;
     String fullName;
     String role;
+    Boolean isActive;
 
 }
