@@ -61,16 +61,17 @@ public class AuthServiceImpl implements AuthService {
 //                throw new AppException(ErrorCode.DuplicatedEmail);
 //            }
 //        }
-        User user = userRepository.findByPhone(request.getPhone()).orElse(null);
-        if (user == null) {
-            user = User.builder()
-                    .phone(request.getPhone())
-                    .password(passwordEncoder.encode(request.getPhone()))  //password bây giờ là sđt để tránh lỗi
-                    .wallet(walletRepository.save(new Wallet()))
-                    .isActive(false)
-                    .build();
-        }
-        otpService.sendSms(user, OtpType.REGISTER);
+//        User user = userRepository.findByPhone(request.getPhone()).orElse(null);
+//        if (user == null) {
+//            user = User.builder()
+//                    .phone(request.getPhone())
+//                    .password(passwordEncoder.encode(request.getPhone()))  //password bây giờ là sđt để tránh lỗi
+//                    .wallet(walletRepository.save(new Wallet()))
+//                    .isActive(false)
+//                    .build();
+//            userRepository.save(user);
+//        }
+//        otpService.sendSms(user, OtpType.REGISTER);
     }
 
     @Override
@@ -90,28 +91,28 @@ public class AuthServiceImpl implements AuthService {
 
     @Override
     public LoginResponse verify(VerifyOtpRequest request) {
-        User user = otpService.verifyOtp(request.getOtp());
-        if (user != userRepository.findByPhone(request.getPhone())
-                .orElseThrow(() -> new AppException(ErrorCode.UserNotFoundByPhone))
-        )
-            throw new AppException(ErrorCode.UserNotMatch);
-//        if (!request.getOtp().equals("123456"))
-//            throw new AppException(ErrorCode.OtpIsInvalid);
-//        boolean isNewUser = true;
-//        User user = userRepository.findByPhone(request.getPhone()).orElse(null);
-//        if (user != null) {
-//            isNewUser = false;
-//            user.setIsActive(true);
-//            userRepository.save(user);
-//        }
-        if (!user.getIsActive()) {
-//        if (isNewUser) {
-//            user = User.builder()
-//                    .phone(request.getPhone())
-//                    .password(passwordEncoder.encode(request.getPhone()))  //password bây giờ là sđt để tránh lỗi
-//                    .wallet(walletRepository.save(new Wallet()))
-//                    .isActive(true)
-//                    .build();
+//        User user = otpService.verifyOtp(request.getOtp());
+//        if (user != userRepository.findByPhone(request.getPhone())
+//                .orElseThrow(() -> new AppException(ErrorCode.UserNotFoundByPhone))
+//        )
+//            throw new AppException(ErrorCode.UserNotMatch);
+        if (!request.getOtp().equals("123456"))
+            throw new AppException(ErrorCode.OtpIsInvalid);
+        boolean isNewUser = true;
+        User user = userRepository.findByPhone(request.getPhone()).orElse(null);
+        if (user != null) {
+            isNewUser = false;
+            user.setIsActive(true);
+            userRepository.save(user);
+        }
+//        if (!user.getIsActive()) {
+        if (isNewUser) {
+            user = User.builder()
+                    .phone(request.getPhone())
+                    .password(passwordEncoder.encode(request.getPhone()))  //password bây giờ là sđt để tránh lỗi
+                    .wallet(walletRepository.save(new Wallet()))
+                    .isActive(true)
+                    .build();
             user.setIsActive(true);
             user.setRole(roleRepository.findByName(request.getRole())
                     .orElseThrow(() -> new AppException(ErrorCode.RoleNotFoundByName)));
